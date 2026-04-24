@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convertidor de Coordenadas Argentina</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.2/proj4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  height: 100%;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  min-height: 100vh;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.panel h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  color: #1a1a1a;
+}
+
+.panel h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 1.5rem 0 0.8rem 0;
+  color: #555;
+}
+
+.selector-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.selector-group > div {
+  flex: 1;
+}
+
+.selector-group label {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.selector-group select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.selector-group select:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0,102,204,0.1);
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+input[type="text"], input[type="number"] {
+  padding: 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+input[type="text"]:focus, input[type="number"]:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0,102,204,0.1);
+}
+
+.format-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.format-toggle button {
+  flex: 1;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.format-toggle button:hover {
+  background: #f0f0f0;
+  border-color: #999;
+}
+
+.format-toggle button.active {
+  background: #0066cc;
+  color: #fff;
+  border-color: #0066cc;
+}
+
+.gms-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.gms-fields input {
+  font-size: 13px;
+  padding: 0.6rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+button {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+button:hover {
+  background: #e8e8e8;
+  border-color: #999;
+}
+
+button.primary {
+  background: #0066cc;
+  color: #fff;
+  border-color: #0066cc;
+}
+
+button.primary:hover {
+  background: #0052a3;
+  border-color: #0052a3;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.result-card {
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.result-card h4 {
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.3px;
+}
+
+.result-card .value {
+  font-size: 14px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  color: #0066cc;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.map-container {
+  height: 500px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.info-panel {
+  background: #e8f4f8;
+  border-left: 4px solid #0066cc;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-size: 13px;
+  color: #333;
+}
+
+.info-panel strong {
+  color: #0052a3;
+}
+
+.legend {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  font-size: 12px;
+  margin-top: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.error {
+  background: #fef2f2;
+  color: #c00;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ffcccc;
+  font-size: 13px;
+  margin: 1rem 0;
+}
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.history-list {
+  margin-top: 0.8rem;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.history-item {
+  padding: 0.7rem;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-item:hover {
+  background: #f0f0f0;
+}
+
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+  .map-container {
+    height: 350px;
+  }
+}
+
+.title-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border-bottom: 2px solid #0066cc;
+}
+
+.title-header h1 {
+  font-size: 28px;
+  color: #0066cc;
+  margin-bottom: 0.5rem;
+}
+
+.title-header p {
+  color: #666;
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="title-header">
+  <h1>🗺️ Convertidor de Coordenadas Argentina</h1>
+  <p>Herramienta didáctica para conversiones entre sistemas geodésicos</p>
+</div>
+
+<div class="container">
+  <!-- LEFT PANEL: INPUT -->
+  <div class="panel">
+    <h2>Entrada de Coordenadas</h2>
+    
+    <div class="selector-group">
+      <div>
+        <label>Sistema origen</label>
+        <select id="originSystem" onchange="updateFormatOptions()">
+          <option value="WGS84">WGS84 (lat/lon)</option>
+          <option value="POSGAR2007">POSGAR 2007</option>
+          <option value="POSGAR1998">POSGAR 1998</option>
+          <option value="POSGAR1994">POSGAR 1994</option>
+          <option value="GaussKruger">Gauss-Krüger</option>
+          <option value="CamposHinchauspe">Campos Hinchauspe (obsoleto)</option>
+        </select>
+      </div>
+      <div>
+        <label>Sistema destino</label>
+        <select id="destinySystem">
+          <option value="WGS84">WGS84 (lat/lon)</option>
+          <option value="POSGAR2007">POSGAR 2007</option>
+          <option value="POSGAR1998">POSGAR 1998</option>
+          <option value="POSGAR1994">POSGAR 1994</option>
+          <option value="GaussKruger">Gauss-Krüger</option>
+          <option value="CamposHinchauspe">Campos Hinchauspe (obsoleto)</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 id="formatTitle">Coordenadas geográficas</h3>
+    
+    <div class="format-toggle" id="formatToggle" style="display:none;">
+      <button class="active" onclick="setFormat('decimal')">Decimal</button>
+      <button onclick="setFormat('gms')">GMS</button>
+    </div>
+
+    <!-- Entrada decimal -->
+    <div id="decimalInput" style="display:none;">
+      <div class="input-row">
+        <div class="input-group">
+          <label>Latitud</label>
+          <input type="number" id="lat" placeholder="-34.5" step="0.0001">
+        </div>
+        <div class="input-group">
+          <label>Longitud</label>
+          <input type="number" id="lon" placeholder="-58.5" step="0.0001">
+        </div>
+      </div>
+    </div>
+
+    <!-- Entrada GMS -->
+    <div id="gmsInput" style="display:none;">
+      <div class="input-group" style="margin-bottom: 1.2rem;">
+        <label>Latitud (grados minutos segundos)</label>
+        <div class="gms-fields">
+          <input type="number" id="latGrad" placeholder="Grados" min="-90" max="90">
+          <input type="number" id="latMin" placeholder="Minutos" min="0" max="59">
+          <input type="number" id="latSeg" placeholder="Segundos" min="0" max="59.999">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Longitud (grados minutos segundos)</label>
+        <div class="gms-fields">
+          <input type="number" id="lonGrad" placeholder="Grados" min="-180" max="180">
+          <input type="number" id="lonMin" placeholder="Minutos" min="0" max="59">
+          <input type="number" id="lonSeg" placeholder="Segundos" min="0" max="59.999">
+        </div>
+      </div>
+    </div>
+
+    <!-- Entrada planar -->
+    <div id="planarInput" style="display:none;">
+      <div class="input-row">
+        <div class="input-group">
+          <label>Este (m)</label>
+          <input type="number" id="east" placeholder="0" step="1">
+        </div>
+        <div class="input-group">
+          <label>Norte (m)</label>
+          <input type="number" id="north" placeholder="0" step="1">
+        </div>
+      </div>
+      <div class="input-group" id="fajaSelector" style="display:none;">
+        <label>Faja</label>
+        <select id="faja">
+          <option value="1">Faja 1 (68°O)</option>
+          <option value="2">Faja 2 (69°O)</option>
+          <option value="3">Faja 3 (72°O)</option>
+          <option value="4">Faja 4 (75°O)</option>
+          <option value="5">Faja 5 (60°O)</option>
+          <option value="6">Faja 6 (63°O)</option>
+          <option value="7">Faja 7 (57°O)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="error" id="errorMsg" style="display:none;"></div>
+
+    <div class="buttons">
+      <button class="primary" onclick="convertCoordinates()">Convertir</button>
+      <button onclick="swapSystems()">⇄ Intercambiar</button>
+      <button onclick="clearInputs()">Limpiar</button>
+    </div>
+
+    <div id="conversionHistory" style="display:none;">
+      <h3>Historial de conversiones</h3>
+      <div class="history-list" id="historyList"></div>
+      <button onclick="downloadCSV()" style="margin-top: 1rem; width: 100%;">📥 Descargar CSV</button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: RESULTS & MAP -->
+  <div class="right-panel">
+    <div class="panel">
+      <h2>Resultados</h2>
+      <div id="infoPanel" class="info-panel" style="display:none;">
+        <strong id="infoText"></strong>
+      </div>
+      <div id="resultsContainer" style="display:none;">
+        <div class="results" id="results"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Mapa de ubicación</h2>
+      <div class="map-container" id="map"></div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #0066cc;"></div>
+          <span>Punto convertido</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: rgba(0,102,204,0.3);"></div>
+          <span>Meridianos de fajas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let map;
+let conversionHistory = [];
+
+// Registrar proyecciones
+proj4.defs('EPSG:4326', '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs');
+
+const gaussKrugerDefs = {
+  1: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=1500000 +y_0=0 +ellps=intl +units=m +no_defs',
+  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=0 +ellps=intl +units=m +no_defs',
+  3: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=3500000 +y_0=0 +ellps=intl +units=m +no_defs',
+  4: '+proj=tmerc +lon_0=-75 +k=0.9999 +x_0=4500000 +y_0=0 +ellps=intl +units=m +no_defs',
+  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=0 +ellps=intl +units=m +no_defs',
+  6: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=6500000 +y_0=0 +ellps=intl +units=m +no_defs',
+  7: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=7500000 +y_0=0 +ellps=intl +units=m +no_defs'
+};
+
+Object.keys(gaussKrugerDefs).forEach(faja => {
+  proj4.defs(`GaussKruger${faja}`, gaussKrugerDefs[faja]);
+});
+
+const posgar2007Defs = {
+  1: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=1500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  3: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=3500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  4: '+proj=tmerc +lon_0=-75 +k=0.9999 +x_0=4500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  6: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=6500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  7: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=7500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+};
+
+Object.keys(posgar2007Defs).forEach(faja => {
+  proj4.defs(`POSGAR2007${faja}`, posgar2007Defs[faja]);
+});
+
+const posgar1998Defs = { ...posgar2007Defs };
+Object.keys(posgar1998Defs).forEach(faja => {
+  proj4.defs(`POSGAR1998${faja}`, posgar1998Defs[faja]);
+});
+
+const posgar1994Defs = { ...posgar2007Defs };
+Object.keys(posgar1994Defs).forEach(faja => {
+  proj4.defs(`POSGAR1994${faja}`, posgar1994Defs[faja]);
+});
+
+const camposHinchaupseDefs = {
+  1: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=1500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
+  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
+  3: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=3500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
+  4: '+proj=tmerc +lon_0=-75 +k=0.9999 +x_0=4500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
+  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
+  6: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=6500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
+  7: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=7500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs'
+};
+
+Object.keys(camposHinchaupseDefs).forEach(faja => {
+  proj4.defs(`CamposHinchauspe${faja}`, camposHinchaupseDefs[faja]);
+});
+
+const fajaData = [
+  { faja: 1, lon: -66 },
+  { faja: 2, lon: -69 },
+  { faja: 3, lon: -72 },
+  { faja: 4, lon: -75 },
+  { faja: 5, lon: -60 },
+  { faja: 6, lon: -63 },
+  { faja: 7, lon: -57 }
+];
+
+function updateFormatOptions() {
+  const origin = document.getElementById('originSystem').value;
+  const formatTitle = document.getElementById('formatTitle');
+  const formatToggle = document.getElementById('formatToggle');
+  const decimalInput = document.getElementById('decimalInput');
+  const gmsInput = document.getElementById('gmsInput');
+  const planarInput = document.getElementById('planarInput');
+  const fajaSelector = document.getElementById('fajaSelector');
+
+  if (origin === 'WGS84') {
+    formatTitle.textContent = 'Coordenadas geográficas';
+    formatToggle.style.display = 'flex';
+    decimalInput.style.display = 'block';
+    gmsInput.style.display = 'none';
+    planarInput.style.display = 'none';
+    fajaSelector.style.display = 'none';
+  } else {
+    formatTitle.textContent = 'Coordenadas planas';
+    formatToggle.style.display = 'none';
+    decimalInput.style.display = 'none';
+    gmsInput.style.display = 'none';
+    planarInput.style.display = 'block';
+    fajaSelector.style.display = 'block';
+  }
+}
+
+function setFormat(format) {
+  document.querySelectorAll('.format-toggle button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('decimalInput').style.display = format === 'decimal' ? 'block' : 'none';
+  document.getElementById('gmsInput').style.display = format === 'gms' ? 'block' : 'none';
+}
+
+function convertCoordinates() {
+  const errorMsg = document.getElementById('errorMsg');
+  errorMsg.style.display = 'none';
+
+  try {
+    const originSystem = document.getElementById('originSystem').value;
+    const destinySystem = document.getElementById('destinySystem').value;
+
+    let coords = originSystem === 'WGS84' ? getWGS84Input() : getPlanarInput();
+    const results = convertCoords(coords, originSystem, destinySystem);
+    displayResults(results, destinySystem);
+    addToHistory(coords, originSystem, results, destinySystem);
+    updateMap(results.lat, results.lon);
+  } catch (error) {
+    errorMsg.textContent = '⚠️ ' + error.message;
+    errorMsg.style.display = 'block';
+  }
+}
+
+function getWGS84Input() {
+  const decimalInput = document.getElementById('decimalInput');
+  if (decimalInput.style.display !== 'none') {
+    const lat = parseFloat(document.getElementById('lat').value);
+    const lon = parseFloat(document.getElementById('lon').value);
+    if (isNaN(lat) || isNaN(lon)) throw new Error('Ingrese latitud y longitud válidas');
+    return { lat, lon };
+  } else {
+    const latGrad = parseFloat(document.getElementById('latGrad').value);
+    const latMin = parseFloat(document.getElementById('latMin').value) || 0;
+    const latSeg = parseFloat(document.getElementById('latSeg').value) || 0;
+    const lonGrad = parseFloat(document.getElementById('lonGrad').value);
+    const lonMin = parseFloat(document.getElementById('lonMin').value) || 0;
+    const lonSeg = parseFloat(document.getElementById('lonSeg').value) || 0;
+
+    if (isNaN(latGrad) || isNaN(lonGrad)) throw new Error('Ingrese grados válidos');
+
+    const lat = latGrad + latMin / 60 + latSeg / 3600;
+    const lon = lonGrad + lonMin / 60 + lonSeg / 3600;
+    return { lat, lon };
+  }
+}
+
+function getPlanarInput() {
+  const east = parseFloat(document.getElementById('east').value);
+  const north = parseFloat(document.getElementById('north').value);
+  const faja = document.getElementById('faja').value;
+  if (isNaN(east) || isNaN(north)) throw new Error('Ingrese coordenadas planas válidas');
+  return { east, north, faja };
+}
+
+function detectFaja(lon) {
+  if (lon < -67.5) return 1;
+  if (lon < -70.5) return 2;
+  if (lon < -73.5) return 3;
+  if (lon < -76.5) return 4;
+  if (lon < -61.5) return 5;
+  if (lon < -64.5) return 6;
+  return 7;
+}
+
+function convertCoords(coords, originSystem, destinySystem) {
+  let lat, lon;
+
+  if (originSystem === 'WGS84') {
+    lat = coords.lat;
+    lon = coords.lon;
+  } else {
+    const sourceDef = originSystem === 'GaussKruger' ? `GaussKruger${coords.faja}` : 
+                      originSystem === 'POSGAR2007' ? `POSGAR2007${coords.faja}` :
+                      originSystem === 'POSGAR1998' ? `POSGAR1998${coords.faja}` :
+                      originSystem === 'POSGAR1994' ? `POSGAR1994${coords.faja}` :
+                      `CamposHinchauspe${coords.faja}`;
+    const point = proj4(sourceDef, 'EPSG:4326', [coords.east, coords.north]);
+    lon = point[0];
+    lat = point[1];
+  }
+
+  const results = { lat, lon };
+
+  if (destinySystem === 'WGS84') {
+    results.decimal = { lat, lon };
+    results.gms = coordToGMS(lat, lon);
+  } else {
+    const faja = detectFaja(lon);
+    const destDef = destinySystem === 'GaussKruger' ? `GaussKruger${faja}` :
+                    destinySystem === 'POSGAR2007' ? `POSGAR2007${faja}` :
+                    destinySystem === 'POSGAR1998' ? `POSGAR1998${faja}` :
+                    destinySystem === 'POSGAR1994' ? `POSGAR1994${faja}` :
+                    `CamposHinchauspe${faja}`;
+    
+    const point = proj4('EPSG:4326', destDef, [lon, lat]);
+    results.planar = {
+      east: Math.round(point[0] * 10) / 10,
+      north: Math.round(point[1] * 10) / 10,
+      faja: faja
+    };
+  }
+
+  return results;
+}
+
+function coordToGMS(lat, lon) {
+  return { lat: decimalToGMS(lat), lon: decimalToGMS(lon) };
+}
+
+function decimalToGMS(decimal) {
+  const sign = decimal >= 0 ? 1 : -1;
+  const abs = Math.abs(decimal);
+  const grados = Math.floor(abs);
+  const minutos = Math.floor((abs - grados) * 60);
+  const segundos = ((abs - grados) * 60 - minutos) * 60;
+  return { grados: sign * grados, minutos, segundos };
+}
+
+function displayResults(results, destinySystem) {
+  const resultsDiv = document.getElementById('results');
+  const infoPanel = document.getElementById('infoPanel');
+  const infoText = document.getElementById('infoText');
+  let html = '';
+
+  if (destinySystem === 'WGS84') {
+    const { lat, lon } = results.decimal;
+    const gms = results.gms;
+    
+    html = `
+      <div class="result-card">
+        <h4>WGS84 Decimal</h4>
+        <div class="value">
+          Lat: ${lat.toFixed(6)}°<br>
+          Lon: ${lon.toFixed(6)}°
+        </div>
+      </div>
+      <div class="result-card">
+        <h4>WGS84 GMS</h4>
+        <div class="value">
+          Lat: ${gms.lat.grados}° ${gms.lat.minutos}' ${gms.lat.segundos.toFixed(2)}"<br>
+          Lon: ${gms.lon.grados}° ${gms.lon.minutos}' ${gms.lon.segundos.toFixed(2)}"
+        </div>
+      </div>
+    `;
+    infoText.textContent = '✓ Coordenadas geográficas convertidas correctamente';
+  } else {
+    const faja = results.planar.faja;
+    const systemName = destinySystem === 'GaussKruger' ? 'Gauss-Krüger' :
+                       destinySystem === 'POSGAR2007' ? 'POSGAR 2007' :
+                       destinySystem === 'POSGAR1998' ? 'POSGAR 1998' :
+                       destinySystem === 'POSGAR1994' ? 'POSGAR 1994' :
+                       'Campos Hinchauspe';
+    
+    html = `
+      <div class="result-card">
+        <h4>${systemName}</h4>
+        <div class="value">
+          Este: ${results.planar.east.toFixed(1)} m<br>
+          Norte: ${results.planar.north.toFixed(1)} m<br>
+          Faja: ${faja}
+        </div>
+      </div>
+      <div class="result-card">
+        <h4>Referencia (WGS84)</h4>
+        <div class="value">
+          Lat: ${results.lat.toFixed(6)}°<br>
+          Lon: ${results.lon.toFixed(6)}°
+        </div>
+      </div>
+    `;
+    infoText.textContent = `✓ ${systemName} Faja ${faja} - Conversión exitosa`;
+  }
+
+  resultsDiv.innerHTML = html;
+  document.getElementById('resultsContainer').style.display = 'block';
+  infoPanel.style.display = 'block';
+}
+
+function addToHistory(input, originSystem, results, destinySystem) {
+  conversionHistory.push({ from: originSystem, to: destinySystem, input, results });
+  document.getElementById('conversionHistory').style.display = 'block';
+  updateHistoryDisplay();
+}
+
+function updateHistoryDisplay() {
+  const historyList = document.getElementById('historyList');
+  historyList.innerHTML = conversionHistory.map((item, idx) => {
+    let text = `${item.from} → ${item.to}`;
+    if (item.from === 'WGS84') {
+      text += ` (${item.input.lat.toFixed(4)}, ${item.input.lon.toFixed(4)})`;
+    } else {
+      text += ` (E: ${item.input.east}, N: ${item.input.north}, Faja ${item.input.faja})`;
+    }
+    return `<div class="history-item">${text}</div>`;
+  }).join('');
+}
+
+function downloadCSV() {
+  if (conversionHistory.length === 0) {
+    alert('No hay conversiones para descargar');
+    return;
+  }
+
+  let csv = 'Sistema Origen,Sistema Destino,Entrada,Resultado\n';
+
+  conversionHistory.forEach(item => {
+    let entrada, resultado;
+
+    if (item.from === 'WGS84') {
+      entrada = `${item.input.lat},${item.input.lon}`;
+    } else {
+      entrada = `${item.input.east},${item.input.north},Faja${item.input.faja}`;
+    }
+
+    if (item.to === 'WGS84') {
+      resultado = `${item.results.decimal.lat.toFixed(6)},${item.results.decimal.lon.toFixed(6)}`;
+    } else {
+      resultado = `${item.results.planar.east},${item.results.planar.north},Faja${item.results.planar.faja}`;
+    }
+
+    csv += `"${item.from}","${item.to}","${entrada}","${resultado}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'conversiones_coordenadas.csv';
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+
+function swapSystems() {
+  const origin = document.getElementById('originSystem').value;
+  const destiny = document.getElementById('destinySystem').value;
+  document.getElementById('originSystem').value = destiny;
+  document.getElementById('destinySystem').value = origin;
+  updateFormatOptions();
+}
+
+function clearInputs() {
+  ['lat', 'lon', 'latGrad', 'latMin', 'latSeg', 'lonGrad', 'lonMin', 'lonSeg', 'east', 'north'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('resultsContainer').style.display = 'none';
+  document.getElementById('infoPanel').style.display = 'none';
+}
+
+function updateMap(lat, lon) {
+  if (!map) {
+    map = L.map('map', { zoomControl: false, attributionControl: false }).setView([-38, -63], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }).addTo(map);
+
+    const argBounds = { north: -21.8, south: -55.5 };
+    fajaData.forEach(f => {
+      const latlngs = [[argBounds.north, f.lon], [argBounds.south, f.lon]];
+      L.polyline(latlngs, {
+        color: '#0066cc',
+        weight: 1,
+        opacity: 0.3,
+        dashArray: '5, 5'
+      }).addTo(map).bindPopup(`Faja ${f.faja}<br>Meridiano: ${f.lon}°`);
+    });
+  }
+
+  map.setView([lat, lon], 8);
+  
+  map.eachLayer(layer => {
+    if (layer instanceof L.CircleMarker) map.removeLayer(layer);
+  });
+
+  L.circleMarker([lat, lon], {
+    radius: 8,
+    fillColor: '#0066cc',
+    color: '#003d99',
+    weight: 2,
+    opacity: 1,
+    fillOpacity: 0.8
+  }).addTo(map);
+}
+
+updateFormatOptions();
+</script>
+
+</body>
+</html>
