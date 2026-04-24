@@ -3,580 +3,439 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Convertidor de Coordenadas Argentina</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.2/proj4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<title>Coordenada — Convertidor Geodésico Argentina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.2/proj4.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --border: #e4e4de;
+  --border-strong: #d0d0c8;
+  --accent: oklch(52% 0.19 252);
+  --accent-light: oklch(96% 0.04 252);
+  --accent-mid: oklch(75% 0.12 252);
+  --text: #111318;
+  --text-2: #52525e;
+  --text-3: #8f8f9c;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
 }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f5f5f5;
-  color: #333;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
   height: 100%;
-}
-
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  min-height: 100vh;
-}
-
-.panel {
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.panel h2 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 1.2rem;
-  color: #1a1a1a;
-}
-
-.panel h3 {
   font-size: 14px;
-  font-weight: 600;
-  margin: 1.5rem 0 0.8rem 0;
-  color: #555;
-}
-
-.selector-group {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.selector-group > div {
-  flex: 1;
-}
-
-.selector-group label {
-  font-size: 12px;
-  color: #666;
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.selector-group select {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #fff;
-  color: #333;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.selector-group select:focus {
-  outline: none;
-  border-color: #0066cc;
-  box-shadow: 0 0 0 2px rgba(0,102,204,0.1);
-}
-
-.input-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.input-group label {
-  font-size: 11px;
-  color: #666;
-  margin-bottom: 0.4rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-input[type="text"], input[type="number"] {
-  padding: 0.7rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #fff;
-  color: #333;
-  font-size: 14px;
-  font-family: 'Monaco', 'Courier New', monospace;
-}
-
-input[type="text"]:focus, input[type="number"]:focus {
-  outline: none;
-  border-color: #0066cc;
-  box-shadow: 0 0 0 2px rgba(0,102,204,0.1);
-}
-
-.format-toggle {
-  display: flex;
-  gap: 0.5rem;
-  margin: 1rem 0;
-}
-
-.format-toggle button {
-  flex: 1;
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  background: #f9f9f9;
-  color: #333;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.format-toggle button:hover {
-  background: #f0f0f0;
-  border-color: #999;
-}
-
-.format-toggle button.active {
-  background: #0066cc;
-  color: #fff;
-  border-color: #0066cc;
-}
-
-.gms-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.gms-fields input {
-  font-size: 13px;
-  padding: 0.6rem;
-}
-
-.buttons {
-  display: flex;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-}
-
-button {
-  flex: 1;
-  padding: 0.8rem 1rem;
-  border: 1px solid #ddd;
-  background: #f5f5f5;
-  color: #333;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.2s;
-}
-
-button:hover {
-  background: #e8e8e8;
-  border-color: #999;
-}
-
-button.primary {
-  background: #0066cc;
-  color: #fff;
-  border-color: #0066cc;
-}
-
-button.primary:hover {
-  background: #0052a3;
-  border-color: #0052a3;
-}
-
-.results {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.result-card {
-  background: #f9f9f9;
-  border: 1px solid #eee;
-  border-radius: 6px;
-  padding: 1rem;
-}
-
-.result-card h4 {
-  font-size: 11px;
-  font-weight: 700;
-  color: #666;
-  text-transform: uppercase;
-  margin-bottom: 0.6rem;
-  letter-spacing: 0.3px;
-}
-
-.result-card .value {
-  font-size: 14px;
-  font-family: 'Monaco', 'Courier New', monospace;
-  color: #0066cc;
-  word-break: break-all;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-.map-container {
-  height: 500px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
+#root { height: 100%; display: flex; flex-direction: column; }
 
-.info-panel {
-  background: #e8f4f8;
-  border-left: 4px solid #0066cc;
-  border-radius: 4px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  font-size: 13px;
-  color: #333;
-}
-
-.info-panel strong {
-  color: #0052a3;
-}
-
-.legend {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 1rem;
-  font-size: 12px;
-  margin-top: 0.5rem;
-}
-
-.legend-item {
+/* HEADER */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 56px;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.6rem;
-}
-
-.legend-color {
-  width: 14px;
-  height: 14px;
-  border-radius: 2px;
+  gap: 1rem;
   flex-shrink: 0;
 }
 
-.error {
-  background: #fef2f2;
-  color: #c00;
-  padding: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ffcccc;
-  font-size: 13px;
-  margin: 1rem 0;
+.header-logo {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
 
-.right-panel {
+.header-logo svg { width: 18px; height: 18px; }
+
+.header-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.header-subtitle { font-size: 12px; color: var(--text-3); margin-left: 2px; }
+.header-author { margin-left: auto; font-size: 12px; color: var(--text-3); }
+
+/* LAYOUT */
+.app-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  overflow: hidden;
+}
+
+.left-col {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.right-col {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  padding: 0.9rem 0.25rem;
+  margin-right: 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab-btn:hover { color: var(--text-2); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* FORM SECTION */
+.form-section {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-3);
+  margin-bottom: 0.6rem;
+}
+
+/* SYSTEM SELECTOR */
+.system-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.swap-btn {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text-2);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.swap-btn:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
+
+.field-group { display: flex; flex-direction: column; }
+
+label.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+select, input[type="number"], input[type="text"], textarea {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.75rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238f8f9c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2rem; }
+
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px oklch(52% 0.19 252 / 0.1);
+}
+
+/* FORMAT TOGGLE */
+.format-toggle {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px;
+  gap: 3px;
+}
+
+.format-btn {
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.format-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-weight: 600;
+}
+
+/* COORD INPUTS */
+.input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.input-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+.input-mono input { font-family: var(--mono); font-size: 13px; }
+
+/* CONVERT BUTTON */
+.convert-btn {
+  width: 100%;
+  padding: 0.8rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: -0.1px;
+}
+
+.convert-btn:hover { opacity: 0.9; }
+.convert-btn:active { transform: scale(0.99); }
+
+/* RESULTS */
+.results-panel {
+  background: var(--accent-light);
+  border: 1px solid oklch(85% 0.07 252);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.results-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  position: relative;
+}
+
+.result-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-3); margin-bottom: 0.5rem; }
+.result-value { font-family: var(--mono); font-size: 13px; color: var(--text); line-height: 1.7; }
+
+.copy-btn {
+  position: absolute; top: 0.6rem; right: 0.6rem;
+  width: 26px; height: 26px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3);
+  transition: all 0.15s;
+  font-size: 11px;
+}
+
+.copy-btn:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
+.copy-btn.copied { background: oklch(93% 0.08 150); border-color: oklch(70% 0.15 150); color: oklch(40% 0.15 150); }
+
+/* ERROR */
+.error-msg {
+  background: oklch(97% 0.03 15);
+  border: 1px solid oklch(85% 0.1 15);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-size: 13px;
+  color: oklch(40% 0.15 15);
+}
+
+/* HISTORY */
+.history-section { padding: 0 1.5rem 1.5rem; }
+.history-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0.75rem;
 }
 
 .history-list {
-  margin-top: 0.8rem;
-  max-height: 200px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  max-height: 220px;
   overflow-y: auto;
-  border: 1px solid #eee;
-  border-radius: 6px;
 }
 
 .history-item {
-  padding: 0.7rem;
-  background: #f9f9f9;
-  border-bottom: 1px solid #eee;
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid var(--border);
   font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.1s;
+  gap: 0.5rem;
 }
 
-.history-item:last-child {
-  border-bottom: none;
-}
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: var(--bg); }
+.history-tag { font-family: var(--mono); font-size: 11px; color: var(--text-3); flex-shrink: 0; }
 
-.history-item:hover {
-  background: #f0f0f0;
-}
-
-@media (max-width: 900px) {
-  .container {
-    grid-template-columns: 1fr;
-  }
-  .map-container {
-    height: 350px;
-  }
-}
-
-.title-header {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 1rem 0;
-  border-bottom: 2px solid #0066cc;
-}
-
-.title-header h1 {
-  font-size: 28px;
-  color: #0066cc;
-  margin-bottom: 0.5rem;
-}
-
-.title-header p {
-  color: #666;
-  font-size: 14px;
-}
-
-.title-header .author {
-  margin-top: 0.5rem;
-  font-size: 13px;
-  color: #444;
-  font-style: italic;
-}
-
-.nota-tecnica {
-  max-width: 1400px;
-  margin: 1.5rem auto 2rem auto;
-  padding: 0 1.5rem;
-}
-
-.nota-tecnica details {
-  background: #fff8e1;
-  border: 1px solid #ffe082;
-  border-left: 4px solid #f9a825;
+.btn-ghost {
+  border: 1px solid var(--border);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  padding: 0.35rem 0.75rem;
   border-radius: 6px;
-  padding: 1rem 1.2rem;
-  font-size: 13px;
-  color: #333;
-}
-
-.nota-tecnica summary {
-  font-weight: 700;
-  color: #e65100;
   cursor: pointer;
-  font-size: 14px;
-  user-select: none;
+  transition: all 0.15s;
 }
 
-.nota-tecnica summary:hover {
-  color: #bf360c;
-}
+.btn-ghost:hover { background: var(--bg); border-color: var(--border-strong); }
 
-.nota-tecnica p {
-  margin: 0.7rem 0 0 0;
+/* BATCH */
+.batch-section { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+.batch-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+textarea {
+  font-family: var(--mono);
+  font-size: 12px;
+  resize: vertical;
+  min-height: 140px;
   line-height: 1.6;
 }
 
-.nota-tecnica table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0.8rem 0;
+.batch-results {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.batch-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
   font-size: 12px;
+  align-items: center;
 }
 
-.nota-tecnica th {
-  background: #fff3cd;
-  padding: 0.4rem 0.8rem;
-  text-align: left;
-  border: 1px solid #ffe082;
+.batch-row:last-child { border-bottom: none; }
+.batch-row.header { background: var(--bg); font-weight: 600; font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.3px; }
+.batch-ok { color: oklch(45% 0.15 150); }
+.batch-err { color: oklch(45% 0.2 15); }
+
+/* MAP */
+.map-wrapper { flex: 1; position: relative; overflow: hidden; }
+#map { width: 100%; height: 100%; }
+
+/* TECH NOTE */
+.tech-note {
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+  flex-shrink: 0;
+  background: oklch(98.5% 0.01 80);
 }
 
-.nota-tecnica td {
-  padding: 0.4rem 0.8rem;
-  border: 1px solid #ffe082;
+.tech-note-header {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 
-.footer-app {
-  text-align: center;
-  padding: 1rem 0 1.5rem 0;
-  font-size: 12px;
-  color: #888;
-  border-top: 1px solid #e0e0e0;
-  margin-top: 0.5rem;
+.tech-badge {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  background: oklch(90% 0.08 70); color: oklch(35% 0.12 70);
+  padding: 2px 6px; border-radius: 4px;
 }
+
+.tech-note-body { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+.tech-note-body strong { color: var(--text); }
+
+.tech-table { width: 100%; border-collapse: collapse; margin: 0.6rem 0; font-size: 11px; }
+.tech-table th { background: oklch(93% 0.05 70); padding: 0.35rem 0.6rem; text-align: left; border: 1px solid oklch(85% 0.07 70); color: var(--text-2); font-weight: 600; }
+.tech-table td { padding: 0.35rem 0.6rem; border: 1px solid oklch(85% 0.07 70); }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 0 1.5rem; }
+
+/* MOBILE */
+@media (max-width: 860px) {
+  .app-body { grid-template-columns: 1fr; grid-template-rows: auto 380px; overflow: auto; }
+  .left-col { overflow: visible; }
+  .right-col { border-top: 1px solid var(--border); border-right: none; }
+  .header-author { display: none; }
+}
+
+/* LEAFLET overrides */
+.leaflet-control-attribution { font-size: 10px !important; }
 </style>
 </head>
 <body>
+<div id="root"></div>
 
-<div class="title-header">
-  <h1>🗺️ Convertidor de Coordenadas Argentina</h1>
-  <p>Herramienta didáctica para conversiones entre sistemas geodésicos</p>
-  <p class="author">Desarrollado por Dr. Fabio A. Montealegre M.</p>
-</div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
 
-<div class="container">
-  <!-- LEFT PANEL: INPUT -->
-  <div class="panel">
-    <h2>Entrada de Coordenadas</h2>
-    
-    <div class="selector-group">
-      <div>
-        <label>Sistema origen</label>
-        <select id="originSystem" onchange="updateFormatOptions()">
-          <option value="WGS84">WGS84 (lat/lon)</option>
-          <option value="POSGAR2007">POSGAR 2007</option>
-          <option value="POSGAR1998">POSGAR 1998</option>
-          <option value="POSGAR1994">POSGAR 1994</option>
-          <option value="GaussKruger">Gauss-Krüger</option>
-          <option value="CamposHinchauspe">Campos Hinchauspe (obsoleto)</option>
-        </select>
-      </div>
-      <div>
-        <label>Sistema destino</label>
-        <select id="destinySystem">
-          <option value="WGS84">WGS84 (lat/lon)</option>
-          <option value="POSGAR2007">POSGAR 2007</option>
-          <option value="POSGAR1998">POSGAR 1998</option>
-          <option value="POSGAR1994">POSGAR 1994</option>
-          <option value="GaussKruger">Gauss-Krüger</option>
-          <option value="CamposHinchauspe">Campos Hinchauspe (obsoleto)</option>
-        </select>
-      </div>
-    </div>
-
-    <h3 id="formatTitle">Coordenadas geográficas</h3>
-    
-    <div class="format-toggle" id="formatToggle" style="display:none;">
-      <button class="active" onclick="setFormat('decimal', this)">Decimal</button>
-      <button onclick="setFormat('gms', this)">GMS</button>
-    </div>
-
-    <!-- Entrada decimal -->
-    <div id="decimalInput" style="display:none;">
-      <div class="input-row">
-        <div class="input-group">
-          <label>Latitud</label>
-          <input type="number" id="lat" placeholder="-34.5" step="0.0001">
-        </div>
-        <div class="input-group">
-          <label>Longitud</label>
-          <input type="number" id="lon" placeholder="-58.5" step="0.0001">
-        </div>
-      </div>
-    </div>
-
-    <!-- Entrada GMS -->
-    <div id="gmsInput" style="display:none;">
-      <div class="input-group" style="margin-bottom: 1.2rem;">
-        <label>Latitud (grados minutos segundos)</label>
-        <div class="gms-fields">
-          <input type="number" id="latGrad" placeholder="Grados" min="-90" max="90">
-          <input type="number" id="latMin" placeholder="Minutos" min="0" max="59">
-          <input type="number" id="latSeg" placeholder="Segundos" min="0" max="59.999">
-        </div>
-      </div>
-      <div class="input-group">
-        <label>Longitud (grados minutos segundos)</label>
-        <div class="gms-fields">
-          <input type="number" id="lonGrad" placeholder="Grados" min="-180" max="180">
-          <input type="number" id="lonMin" placeholder="Minutos" min="0" max="59">
-          <input type="number" id="lonSeg" placeholder="Segundos" min="0" max="59.999">
-        </div>
-      </div>
-    </div>
-
-    <!-- Entrada planar -->
-    <div id="planarInput" style="display:none;">
-      <div class="input-row">
-        <div class="input-group">
-          <label>Este (m)</label>
-          <input type="number" id="east" placeholder="0" step="1">
-        </div>
-        <div class="input-group">
-          <label>Norte (m)</label>
-          <input type="number" id="north" placeholder="0" step="1">
-        </div>
-      </div>
-      <div class="input-group" id="fajaSelector" style="display:none;">
-        <label>Faja</label>
-        <select id="faja">
-          <option value="1">Faja 1 (72°O) — Cuyo / Patagonia oeste</option>
-          <option value="2">Faja 2 (69°O) — Neuquén / San Juan</option>
-          <option value="3">Faja 3 (66°O) — La Rioja / Córdoba oeste</option>
-          <option value="4">Faja 4 (63°O) — Córdoba / Santa Fe</option>
-          <option value="5">Faja 5 (60°O) — Entre Ríos / Chaco</option>
-          <option value="6">Faja 6 (57°O) — Buenos Aires / Misiones</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="error" id="errorMsg" style="display:none;"></div>
-
-    <div class="buttons">
-      <button class="primary" onclick="convertCoordinates()">Convertir</button>
-      <button onclick="swapSystems()">⇄ Intercambiar</button>
-      <button onclick="clearInputs()">Limpiar</button>
-    </div>
-
-    <div id="conversionHistory" style="display:none;">
-      <h3>Historial de conversiones</h3>
-      <div class="history-list" id="historyList"></div>
-      <button onclick="downloadCSV()" style="margin-top: 1rem; width: 100%;">📥 Descargar CSV</button>
-    </div>
-  </div>
-
-  <!-- RIGHT PANEL: RESULTS & MAP -->
-  <div class="right-panel">
-    <div class="panel">
-      <h2>Resultados</h2>
-      <div id="infoPanel" class="info-panel" style="display:none;">
-        <strong id="infoText"></strong>
-      </div>
-      <div id="resultsContainer" style="display:none;">
-        <div class="results" id="results"></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Mapa de ubicación</h2>
-      <div class="map-container" id="map"></div>
-      <div class="legend">
-        <div class="legend-item">
-          <div class="legend-color" style="background: #0066cc;"></div>
-          <span>Punto convertido</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background: rgba(0,102,204,0.3);"></div>
-          <span>Meridianos de fajas</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-let map;
-let conversionHistory = [];
-
-// Registrar proyecciones
+// ─── PROJ4 SETUP ────────────────────────────────────────────────────
 proj4.defs('EPSG:4326', '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs');
 
-// Numeración de fajas: convención argentina tradicional oeste→este
-// Faja 1: CM=72°O ... Faja 6: CM=57°O (Buenos Aires)
-// y_0=10000000 para obtener Norte positivo en hemisferio sur (práctica argentina habitual)
-
-// Gauss-Krüger (datum Campo Inchauspe): FE = faja × 1.000.000
 const gaussKrugerDefs = {
   1: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=1000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
   2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
@@ -586,11 +445,6 @@ const gaussKrugerDefs = {
   6: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=6000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs'
 };
 
-Object.keys(gaussKrugerDefs).forEach(faja => {
-  proj4.defs(`GaussKruger${faja}`, gaussKrugerDefs[faja]);
-});
-
-// POSGAR 2007/1998/1994 (datum WGS84): FE = faja × 1.000.000 + 500.000
 const posgar2007Defs = {
   1: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=1500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
   2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
@@ -600,388 +454,578 @@ const posgar2007Defs = {
   6: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=6500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
 };
 
-Object.keys(posgar2007Defs).forEach(faja => {
-  proj4.defs(`POSGAR2007${faja}`, posgar2007Defs[faja]);
+[1,2,3,4,5,6].forEach(f => {
+  proj4.defs(`GK${f}`, gaussKrugerDefs[f]);
+  proj4.defs(`P7${f}`, posgar2007Defs[f]);
+  proj4.defs(`P8${f}`, posgar2007Defs[f]); // POSGAR 1998 ~ same grid
+  proj4.defs(`P4${f}`, posgar2007Defs[f]); // POSGAR 1994 ~ same grid
+  proj4.defs(`CH${f}`, gaussKrugerDefs[f]); // Campos Hinchauspe = GK datum
 });
 
-const posgar1998Defs = { ...posgar2007Defs };
-Object.keys(posgar1998Defs).forEach(faja => {
-  proj4.defs(`POSGAR1998${faja}`, posgar1998Defs[faja]);
-});
-
-const posgar1994Defs = { ...posgar2007Defs };
-Object.keys(posgar1994Defs).forEach(faja => {
-  proj4.defs(`POSGAR1994${faja}`, posgar1994Defs[faja]);
-});
-
-// Campos Hinchauspe = mismo datum que Gauss-Krüger (Campo Inchauspe)
-const camposHinchaupseDefs = { ...gaussKrugerDefs };
-Object.keys(camposHinchaupseDefs).forEach(faja => {
-  proj4.defs(`CamposHinchauspe${faja}`, camposHinchaupseDefs[faja]);
-});
-
-const fajaData = [
-  { faja: 1, lon: -72 },
-  { faja: 2, lon: -69 },
-  { faja: 3, lon: -66 },
-  { faja: 4, lon: -63 },
-  { faja: 5, lon: -60 },
-  { faja: 6, lon: -57 }
+const SYSTEMS = [
+  { value: 'WGS84', label: 'WGS84 (lat/lon)', planar: false },
+  { value: 'POSGAR2007', label: 'POSGAR 2007', planar: true, prefix: 'P7' },
+  { value: 'POSGAR1998', label: 'POSGAR 1998', planar: true, prefix: 'P8' },
+  { value: 'POSGAR1994', label: 'POSGAR 1994', planar: true, prefix: 'P4' },
+  { value: 'GaussKruger', label: 'Gauss-Krüger', planar: true, prefix: 'GK' },
+  { value: 'CamposHinchauspe', label: 'Campos Hinchauspe', planar: true, prefix: 'CH' },
 ];
 
-function updateFormatOptions() {
-  const origin = document.getElementById('originSystem').value;
-  const formatTitle = document.getElementById('formatTitle');
-  const formatToggle = document.getElementById('formatToggle');
-  const decimalInput = document.getElementById('decimalInput');
-  const gmsInput = document.getElementById('gmsInput');
-  const planarInput = document.getElementById('planarInput');
-  const fajaSelector = document.getElementById('fajaSelector');
+const FAJAS = [
+  { value: '1', label: 'Faja 1 — 72°O (Cuyo / Patagonia W)' },
+  { value: '2', label: 'Faja 2 — 69°O (Neuquén / San Juan)' },
+  { value: '3', label: 'Faja 3 — 66°O (La Rioja / Córdoba W)' },
+  { value: '4', label: 'Faja 4 — 63°O (Córdoba / Santa Fe)' },
+  { value: '5', label: 'Faja 5 — 60°O (Entre Ríos / Chaco)' },
+  { value: '6', label: 'Faja 6 — 57°O (Buenos Aires / Misiones)' },
+];
 
-  if (origin === 'WGS84') {
-    formatTitle.textContent = 'Coordenadas geográficas';
-    formatToggle.style.display = 'flex';
-    decimalInput.style.display = 'block';
-    gmsInput.style.display = 'none';
-    planarInput.style.display = 'none';
-    fajaSelector.style.display = 'none';
-  } else {
-    formatTitle.textContent = 'Coordenadas planas';
-    formatToggle.style.display = 'none';
-    decimalInput.style.display = 'none';
-    gmsInput.style.display = 'none';
-    planarInput.style.display = 'block';
-    fajaSelector.style.display = 'block';
-  }
+function getPrefix(sys) {
+  return SYSTEMS.find(s => s.value === sys)?.prefix;
 }
 
-function setFormat(format, btn) {
-  document.querySelectorAll('.format-toggle button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('decimalInput').style.display = format === 'decimal' ? 'block' : 'none';
-  document.getElementById('gmsInput').style.display = format === 'gms' ? 'block' : 'none';
-}
-
-function convertCoordinates() {
-  const errorMsg = document.getElementById('errorMsg');
-  errorMsg.style.display = 'none';
-
-  try {
-    const originSystem = document.getElementById('originSystem').value;
-    const destinySystem = document.getElementById('destinySystem').value;
-
-    let coords = originSystem === 'WGS84' ? getWGS84Input() : getPlanarInput();
-    const results = convertCoords(coords, originSystem, destinySystem);
-    displayResults(results, destinySystem);
-    addToHistory(coords, originSystem, results, destinySystem);
-    updateMap(results.lat, results.lon);
-  } catch (error) {
-    errorMsg.textContent = '⚠️ ' + error.message;
-    errorMsg.style.display = 'block';
-  }
-}
-
-function getWGS84Input() {
-  const decimalInput = document.getElementById('decimalInput');
-  if (decimalInput.style.display !== 'none') {
-    const lat = parseFloat(document.getElementById('lat').value);
-    const lon = parseFloat(document.getElementById('lon').value);
-    if (isNaN(lat) || isNaN(lon)) throw new Error('Ingrese latitud y longitud válidas');
-    return { lat, lon };
-  } else {
-    const latGrad = parseFloat(document.getElementById('latGrad').value);
-    const latMin = parseFloat(document.getElementById('latMin').value) || 0;
-    const latSeg = parseFloat(document.getElementById('latSeg').value) || 0;
-    const lonGrad = parseFloat(document.getElementById('lonGrad').value);
-    const lonMin = parseFloat(document.getElementById('lonMin').value) || 0;
-    const lonSeg = parseFloat(document.getElementById('lonSeg').value) || 0;
-
-    if (isNaN(latGrad) || isNaN(lonGrad)) throw new Error('Ingrese grados válidos');
-
-    const signLat = latGrad < 0 ? -1 : 1;
-    const lat = signLat * (Math.abs(latGrad) + latMin / 60 + latSeg / 3600);
-    const signLon = lonGrad < 0 ? -1 : 1;
-    const lon = signLon * (Math.abs(lonGrad) + lonMin / 60 + lonSeg / 3600);
-    return { lat, lon };
-  }
-}
-
-function getPlanarInput() {
-  const east = parseFloat(document.getElementById('east').value);
-  const north = parseFloat(document.getElementById('north').value);
-  const faja = document.getElementById('faja').value;
-  if (isNaN(east) || isNaN(north)) throw new Error('Ingrese coordenadas planas válidas');
-  return { east, north, faja };
+function isPlanar(sys) {
+  return SYSTEMS.find(s => s.value === sys)?.planar ?? false;
 }
 
 function detectFaja(lon) {
-  if (lon >= -58.5) return 6;  // CM 57°O
-  if (lon >= -61.5) return 5;  // CM 60°O
-  if (lon >= -64.5) return 4;  // CM 63°O
-  if (lon >= -67.5) return 3;  // CM 66°O
-  if (lon >= -70.5) return 2;  // CM 69°O
-  return 1;                    // CM 72°O
-}
-
-function convertCoords(coords, originSystem, destinySystem) {
-  let lat, lon;
-
-  if (originSystem === 'WGS84') {
-    lat = coords.lat;
-    lon = coords.lon;
-  } else {
-    const sourceDef = originSystem === 'GaussKruger' ? `GaussKruger${coords.faja}` : 
-                      originSystem === 'POSGAR2007' ? `POSGAR2007${coords.faja}` :
-                      originSystem === 'POSGAR1998' ? `POSGAR1998${coords.faja}` :
-                      originSystem === 'POSGAR1994' ? `POSGAR1994${coords.faja}` :
-                      `CamposHinchauspe${coords.faja}`;
-    const point = proj4(sourceDef, 'EPSG:4326', [coords.east, coords.north]);
-    lon = point[0];
-    lat = point[1];
-  }
-
-  const results = { lat, lon };
-
-  if (destinySystem === 'WGS84') {
-    results.decimal = { lat, lon };
-    results.gms = coordToGMS(lat, lon);
-  } else {
-    const faja = detectFaja(lon);
-    const destDef = destinySystem === 'GaussKruger' ? `GaussKruger${faja}` :
-                    destinySystem === 'POSGAR2007' ? `POSGAR2007${faja}` :
-                    destinySystem === 'POSGAR1998' ? `POSGAR1998${faja}` :
-                    destinySystem === 'POSGAR1994' ? `POSGAR1994${faja}` :
-                    `CamposHinchauspe${faja}`;
-    
-    const point = proj4('EPSG:4326', destDef, [lon, lat]);
-    results.planar = {
-      east: Math.round(point[0] * 10) / 10,
-      north: Math.round(point[1] * 10) / 10,
-      faja: faja
-    };
-  }
-
-  return results;
-}
-
-function coordToGMS(lat, lon) {
-  return { lat: decimalToGMS(lat), lon: decimalToGMS(lon) };
+  if (lon >= -58.5) return '6';
+  if (lon >= -61.5) return '5';
+  if (lon >= -64.5) return '4';
+  if (lon >= -67.5) return '3';
+  if (lon >= -70.5) return '2';
+  return '1';
 }
 
 function decimalToGMS(decimal) {
   const sign = decimal >= 0 ? 1 : -1;
   const abs = Math.abs(decimal);
-  const grados = Math.floor(abs);
-  const minutos = Math.floor((abs - grados) * 60);
-  const segundos = ((abs - grados) * 60 - minutos) * 60;
-  return { grados: sign * grados, minutos, segundos };
+  const g = Math.floor(abs);
+  const m = Math.floor((abs - g) * 60);
+  const s = ((abs - g) * 60 - m) * 60;
+  return { g: sign * g, m, s };
 }
 
-function displayResults(results, destinySystem) {
-  const resultsDiv = document.getElementById('results');
-  const infoPanel = document.getElementById('infoPanel');
-  const infoText = document.getElementById('infoText');
-  let html = '';
+function gmsStr({ g, m, s }) {
+  return `${g}° ${m}' ${s.toFixed(2)}"`;
+}
 
-  if (destinySystem === 'WGS84') {
-    const { lat, lon } = results.decimal;
-    const gms = results.gms;
-    
-    html = `
-      <div class="result-card">
-        <h4>WGS84 Decimal</h4>
-        <div class="value">
-          Lat: ${lat.toFixed(6)}°<br>
-          Lon: ${lon.toFixed(6)}°
-        </div>
-      </div>
-      <div class="result-card">
-        <h4>WGS84 GMS</h4>
-        <div class="value">
-          Lat: ${gms.lat.grados}° ${gms.lat.minutos}' ${gms.lat.segundos.toFixed(2)}"<br>
-          Lon: ${gms.lon.grados}° ${gms.lon.minutos}' ${gms.lon.segundos.toFixed(2)}"
-        </div>
-      </div>
-    `;
-    infoText.textContent = '✓ Coordenadas geográficas convertidas correctamente';
+function convertCoords(originSys, destSys, input) {
+  let lat, lon;
+  if (!isPlanar(originSys)) {
+    lat = input.lat; lon = input.lon;
   } else {
-    const faja = results.planar.faja;
-    const systemName = destinySystem === 'GaussKruger' ? 'Gauss-Krüger' :
-                       destinySystem === 'POSGAR2007' ? 'POSGAR 2007' :
-                       destinySystem === 'POSGAR1998' ? 'POSGAR 1998' :
-                       destinySystem === 'POSGAR1994' ? 'POSGAR 1994' :
-                       'Campos Hinchauspe';
-    
-    html = `
-      <div class="result-card">
-        <h4>${systemName}</h4>
-        <div class="value">
-          Este: ${results.planar.east.toFixed(1)} m<br>
-          Norte: ${results.planar.north.toFixed(1)} m<br>
-          Faja: ${faja}
-        </div>
-      </div>
-      <div class="result-card">
-        <h4>Referencia (WGS84)</h4>
-        <div class="value">
-          Lat: ${results.lat.toFixed(6)}°<br>
-          Lon: ${results.lon.toFixed(6)}°
-        </div>
-      </div>
-    `;
-    infoText.textContent = `✓ ${systemName} Faja ${faja} - Conversión exitosa`;
+    const def = `${getPrefix(originSys)}${input.faja}`;
+    const pt = proj4(def, 'EPSG:4326', [input.east, input.north]);
+    lon = pt[0]; lat = pt[1];
   }
+  if (lat == null || lon == null || isNaN(lat) || isNaN(lon)) throw new Error('Coordenadas inválidas');
 
-  resultsDiv.innerHTML = html;
-  document.getElementById('resultsContainer').style.display = 'block';
-  infoPanel.style.display = 'block';
-}
-
-function addToHistory(input, originSystem, results, destinySystem) {
-  conversionHistory.push({ from: originSystem, to: destinySystem, input, results });
-  document.getElementById('conversionHistory').style.display = 'block';
-  updateHistoryDisplay();
-}
-
-function updateHistoryDisplay() {
-  const historyList = document.getElementById('historyList');
-  historyList.innerHTML = conversionHistory.map((item, idx) => {
-    let text = `${item.from} → ${item.to}`;
-    if (item.from === 'WGS84') {
-      text += ` (${item.input.lat.toFixed(4)}, ${item.input.lon.toFixed(4)})`;
-    } else {
-      text += ` (E: ${item.input.east}, N: ${item.input.north}, Faja ${item.input.faja})`;
-    }
-    return `<div class="history-item">${text}</div>`;
-  }).join('');
-}
-
-function downloadCSV() {
-  if (conversionHistory.length === 0) {
-    alert('No hay conversiones para descargar');
-    return;
+  if (!isPlanar(destSys)) {
+    const gmsLat = decimalToGMS(lat); const gmsLon = decimalToGMS(lon);
+    return {
+      lat, lon,
+      cards: [
+        { label: 'WGS84 Decimal', lines: [`Lat: ${lat.toFixed(6)}°`, `Lon: ${lon.toFixed(6)}°`], copy: `${lat.toFixed(6)}, ${lon.toFixed(6)}` },
+        { label: 'WGS84 GMS', lines: [`Lat: ${gmsStr(gmsLat)}`, `Lon: ${gmsStr(gmsLon)}`], copy: `${gmsStr(gmsLat)}, ${gmsStr(gmsLon)}` },
+      ]
+    };
+  } else {
+    const faja = detectFaja(lon);
+    const def = `${getPrefix(destSys)}${faja}`;
+    const pt = proj4('EPSG:4326', def, [lon, lat]);
+    const E = Math.round(pt[0] * 10) / 10;
+    const N = Math.round(pt[1] * 10) / 10;
+    const sysLabel = SYSTEMS.find(s => s.value === destSys)?.label;
+    return {
+      lat, lon,
+      cards: [
+        { label: `${sysLabel} — Faja ${faja}`, lines: [`Este:  ${E.toFixed(1)} m`, `Norte: ${N.toFixed(1)} m`], copy: `E: ${E.toFixed(1)}, N: ${N.toFixed(1)}, Faja ${faja}` },
+        { label: 'Referencia WGS84', lines: [`Lat: ${lat.toFixed(6)}°`, `Lon: ${lon.toFixed(6)}°`], copy: `${lat.toFixed(6)}, ${lon.toFixed(6)}` },
+      ]
+    };
   }
-
-  let csv = 'Sistema Origen,Sistema Destino,Entrada,Resultado\n';
-
-  conversionHistory.forEach(item => {
-    let entrada, resultado;
-
-    if (item.from === 'WGS84') {
-      entrada = `${item.input.lat},${item.input.lon}`;
-    } else {
-      entrada = `${item.input.east},${item.input.north},Faja${item.input.faja}`;
-    }
-
-    if (item.to === 'WGS84') {
-      resultado = `${item.results.decimal.lat.toFixed(6)},${item.results.decimal.lon.toFixed(6)}`;
-    } else {
-      resultado = `${item.results.planar.east},${item.results.planar.north},Faja${item.results.planar.faja}`;
-    }
-
-    csv += `"${item.from}","${item.to}","${entrada}","${resultado}"\n`;
-  });
-
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'conversiones_coordenadas.csv';
-  a.click();
-  window.URL.revokeObjectURL(url);
 }
 
-function swapSystems() {
-  const origin = document.getElementById('originSystem').value;
-  const destiny = document.getElementById('destinySystem').value;
-  document.getElementById('originSystem').value = destiny;
-  document.getElementById('destinySystem').value = origin;
-  updateFormatOptions();
-}
+// ─── MAP COMPONENT ────────────────────────────────────────────────────
+const FAJA_MERIDIANS = [-72,-69,-66,-63,-60,-57];
 
-function clearInputs() {
-  ['lat', 'lon', 'latGrad', 'latMin', 'latSeg', 'lonGrad', 'lonMin', 'lonSeg', 'east', 'north'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('resultsContainer').style.display = 'none';
-  document.getElementById('infoPanel').style.display = 'none';
-}
+function MapView({ point }) {
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const instanceRef = useRef(null);
 
-function updateMap(lat, lon) {
-  if (!map) {
-    map = L.map('map', { zoomControl: false, attributionControl: false }).setView([-38, -63], 4);
+  useEffect(() => {
+    if (instanceRef.current) return;
+    const m = L.map(mapRef.current, { zoomControl: true, attributionControl: true });
+    m.setView([-38, -64], 4);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
-      maxZoom: 19
-    }).addTo(map);
-
-    const argBounds = { north: -21.8, south: -55.5 };
-    fajaData.forEach(f => {
-      const latlngs = [[argBounds.north, f.lon], [argBounds.south, f.lon]];
-      L.polyline(latlngs, {
-        color: '#0066cc',
-        weight: 1,
-        opacity: 0.3,
-        dashArray: '5, 5'
-      }).addTo(map).bindPopup(`Faja ${f.faja}<br>Meridiano: ${f.lon}°`);
+      attribution: '© OpenStreetMap', maxZoom: 19
+    }).addTo(m);
+    FAJA_MERIDIANS.forEach((lon, i) => {
+      L.polyline([[-21.8, lon],[-55.5, lon]], {
+        color: 'oklch(52% 0.19 252)', weight: 1, opacity: 0.35, dashArray: '4,6'
+      }).addTo(m).bindTooltip(`Faja ${i+1} — ${Math.abs(lon)}°O`);
     });
-  }
+    instanceRef.current = m;
+  }, []);
 
-  map.setView([lat, lon], 8);
-  
-  map.eachLayer(layer => {
-    if (layer instanceof L.CircleMarker) map.removeLayer(layer);
-  });
+  useEffect(() => {
+    if (!instanceRef.current || !point) return;
+    if (markerRef.current) instanceRef.current.removeLayer(markerRef.current);
+    markerRef.current = L.circleMarker([point.lat, point.lon], {
+      radius: 9, fillColor: '#2563eb', color: '#1d4ed8', weight: 2,
+      opacity: 1, fillOpacity: 0.85
+    }).addTo(instanceRef.current).bindPopup(`${point.lat.toFixed(5)}, ${point.lon.toFixed(5)}`).openPopup();
+    instanceRef.current.setView([point.lat, point.lon], 8, { animate: true });
+  }, [point]);
 
-  L.circleMarker([lat, lon], {
-    radius: 8,
-    fillColor: '#0066cc',
-    color: '#003d99',
-    weight: 2,
-    opacity: 1,
-    fillOpacity: 0.8
-  }).addTo(map);
+  return <div ref={mapRef} id="map"></div>;
 }
 
-updateFormatOptions();
+// ─── COPY BUTTON ─────────────────────────────────────────────────────
+function CopyBtn({ text }) {
+  const [copied, setCopied] = useState(false);
+  const handle = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    });
+  };
+  return (
+    <button className={`copy-btn${copied ? ' copied' : ''}`} onClick={handle} title="Copiar">
+      {copied ? '✓' : '⎘'}
+    </button>
+  );
+}
+
+// ─── INDIVIDUAL MODE ──────────────────────────────────────────────────
+function IndividualMode({ onResult }) {
+  const [origin, setOrigin] = useState('WGS84');
+  const [dest, setDest] = useState('POSGAR2007');
+  const [format, setFormat] = useState('decimal');
+  const [lat, setLat] = useState('');
+  const [lon, setLon] = useState('');
+  const [latG, setLatG] = useState(''); const [latM, setLatM] = useState(''); const [latS, setLatS] = useState('');
+  const [lonG, setLonG] = useState(''); const [lonM, setLonM] = useState(''); const [lonS, setLonS] = useState('');
+  const [east, setEast] = useState('');
+  const [north, setNorth] = useState('');
+  const [faja, setFaja] = useState('4');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
+
+  const originPlanar = isPlanar(origin);
+
+  const swap = () => { setOrigin(dest); setDest(origin); setResult(null); setError(''); };
+
+  const clear = () => {
+    setLat(''); setLon(''); setLatG(''); setLatM(''); setLatS('');
+    setLonG(''); setLonM(''); setLonS(''); setEast(''); setNorth('');
+    setResult(null); setError('');
+  };
+
+  const convert = () => {
+    setError('');
+    try {
+      let input;
+      if (!originPlanar) {
+        if (format === 'decimal') {
+          const la = parseFloat(lat); const lo = parseFloat(lon);
+          if (isNaN(la) || isNaN(lo)) throw new Error('Ingresá latitud y longitud válidas.');
+          input = { lat: la, lon: lo };
+        } else {
+          const lg = parseFloat(latG); if (isNaN(lg)) throw new Error('Ingresá grados de latitud.');
+          const ll = parseFloat(lonG); if (isNaN(ll)) throw new Error('Ingresá grados de longitud.');
+          const signLat = lg < 0 ? -1 : 1;
+          const signLon = ll < 0 ? -1 : 1;
+          input = {
+            lat: signLat * (Math.abs(lg) + (parseFloat(latM)||0)/60 + (parseFloat(latS)||0)/3600),
+            lon: signLon * (Math.abs(ll) + (parseFloat(lonM)||0)/60 + (parseFloat(lonS)||0)/3600),
+          };
+        }
+      } else {
+        const e = parseFloat(east); const n = parseFloat(north);
+        if (isNaN(e) || isNaN(n)) throw new Error('Ingresá Este y Norte válidos.');
+        input = { east: e, north: n, faja };
+      }
+      const res = convertCoords(origin, dest, input);
+      setResult(res);
+      onResult(res, origin, dest, input);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className="form-section">
+      {/* System selectors */}
+      <div>
+        <div className="section-label">Sistema de coordenadas</div>
+        <div className="system-row">
+          <div className="field-group">
+            <label className="field-label">Origen</label>
+            <select value={origin} onChange={e => { setOrigin(e.target.value); setResult(null); setError(''); }}>
+              {SYSTEMS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
+          </div>
+          <div style={{paddingBottom:'2px'}}>
+            <button className="swap-btn" onClick={swap} title="Intercambiar sistemas">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+                <path d="M3 5h10M10 2l3 3-3 3M13 11H3M6 8l-3 3 3 3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div className="field-group">
+            <label className="field-label">Destino</label>
+            <select value={dest} onChange={e => { setDest(e.target.value); setResult(null); setError(''); }}>
+              {SYSTEMS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Input */}
+      <div>
+        <div className="section-label">
+          {originPlanar ? 'Coordenadas planas' : 'Coordenadas geográficas'}
+        </div>
+
+        {!originPlanar && (
+          <div className="format-toggle" style={{marginBottom:'1rem'}}>
+            <button className={`format-btn${format==='decimal'?' active':''}`} onClick={() => setFormat('decimal')}>Decimal</button>
+            <button className={`format-btn${format==='gms'?' active':''}`} onClick={() => setFormat('gms')}>GMS</button>
+          </div>
+        )}
+
+        {!originPlanar && format === 'decimal' && (
+          <div className="input-grid-2 input-mono">
+            <div className="field-group">
+              <label className="field-label">Latitud</label>
+              <input type="number" step="0.0001" placeholder="-34.6037" value={lat} onChange={e=>setLat(e.target.value)} />
+            </div>
+            <div className="field-group">
+              <label className="field-label">Longitud</label>
+              <input type="number" step="0.0001" placeholder="-58.3816" value={lon} onChange={e=>setLon(e.target.value)} />
+            </div>
+          </div>
+        )}
+
+        {!originPlanar && format === 'gms' && (
+          <>
+            <div className="field-group" style={{marginBottom:'0.75rem'}}>
+              <label className="field-label">Latitud (G° M' S")</label>
+              <div className="input-grid-3 input-mono">
+                <input type="number" placeholder="Grados" value={latG} onChange={e=>setLatG(e.target.value)} />
+                <input type="number" placeholder="Minutos" min="0" max="59" value={latM} onChange={e=>setLatM(e.target.value)} />
+                <input type="number" placeholder="Segundos" min="0" step="0.01" value={latS} onChange={e=>setLatS(e.target.value)} />
+              </div>
+            </div>
+            <div className="field-group">
+              <label className="field-label">Longitud (G° M' S")</label>
+              <div className="input-grid-3 input-mono">
+                <input type="number" placeholder="Grados" value={lonG} onChange={e=>setLonG(e.target.value)} />
+                <input type="number" placeholder="Minutos" min="0" max="59" value={lonM} onChange={e=>setLonM(e.target.value)} />
+                <input type="number" placeholder="Segundos" min="0" step="0.01" value={lonS} onChange={e=>setLonS(e.target.value)} />
+              </div>
+            </div>
+          </>
+        )}
+
+        {originPlanar && (
+          <>
+            <div className="input-grid-2 input-mono" style={{marginBottom:'0.75rem'}}>
+              <div className="field-group">
+                <label className="field-label">Este (m)</label>
+                <input type="number" step="1" placeholder="4500000" value={east} onChange={e=>setEast(e.target.value)} />
+              </div>
+              <div className="field-group">
+                <label className="field-label">Norte (m)</label>
+                <input type="number" step="1" placeholder="6172000" value={north} onChange={e=>setNorth(e.target.value)} />
+              </div>
+            </div>
+            <div className="field-group">
+              <label className="field-label">Faja</label>
+              <select value={faja} onChange={e=>setFaja(e.target.value)}>
+                {FAJAS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+              </select>
+            </div>
+          </>
+        )}
+      </div>
+
+      {error && <div className="error-msg">⚠ {error}</div>}
+
+      <div style={{display:'flex',gap:'0.5rem'}}>
+        <button className="convert-btn" onClick={convert}>Convertir</button>
+        <button className="btn-ghost" onClick={clear} style={{flexShrink:0}}>Limpiar</button>
+      </div>
+
+      {result && (
+        <div className="results-panel">
+          <div className="results-header">
+            <span className="results-title">Resultado</span>
+          </div>
+          <div className="result-cards">
+            {result.cards.map((card, i) => (
+              <div className="result-card" key={i}>
+                <div className="result-card-label">{card.label}</div>
+                {card.lines.map((l, j) => <div className="result-value" key={j}>{l}</div>)}
+                <CopyBtn text={card.copy} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── BATCH MODE ───────────────────────────────────────────────────────
+function BatchMode() {
+  const [origin, setOrigin] = useState('WGS84');
+  const [dest, setDest] = useState('POSGAR2007');
+  const [faja, setFaja] = useState('4');
+  const [text, setText] = useState('');
+  const [rows, setRows] = useState(null);
+
+  const process = () => {
+    const lines = text.trim().split('\n').filter(l => l.trim());
+    const results = lines.map(line => {
+      const parts = line.trim().split(/[\s,;]+/);
+      try {
+        let input;
+        if (!isPlanar(origin)) {
+          const la = parseFloat(parts[0]); const lo = parseFloat(parts[1]);
+          if (isNaN(la) || isNaN(lo)) throw new Error('inválido');
+          input = { lat: la, lon: lo };
+        } else {
+          const e = parseFloat(parts[0]); const n = parseFloat(parts[1]);
+          if (isNaN(e) || isNaN(n)) throw new Error('inválido');
+          const f = parts[2] || faja;
+          input = { east: e, north: n, faja: f };
+        }
+        const res = convertCoords(origin, dest, input);
+        return { ok: true, input: line.trim(), output: res.cards[0].copy };
+      } catch(e) {
+        return { ok: false, input: line.trim(), output: e.message };
+      }
+    });
+    setRows(results);
+  };
+
+  const downloadCSV = () => {
+    if (!rows) return;
+    let csv = 'Entrada,Resultado,Estado\n';
+    rows.forEach(r => { csv += `"${r.input}","${r.output}","${r.ok?'OK':'Error'}"\n`; });
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'coordenadas_batch.csv'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="batch-section">
+      <div className="batch-desc">
+        Pegá una lista de coordenadas, una por línea. Para WGS84 usá <code>lat, lon</code>. Para sistemas planos: <code>Este, Norte</code> (y opcionalmente la faja como tercer valor).
+      </div>
+
+      <div className="system-row">
+        <div className="field-group">
+          <label className="field-label">Origen</label>
+          <select value={origin} onChange={e=>setOrigin(e.target.value)}>
+            {SYSTEMS.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+        </div>
+        <div style={{paddingBottom:'2px'}}>
+          <button className="swap-btn" onClick={()=>{setOrigin(dest);setDest(origin);setRows(null);}} title="Intercambiar">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+              <path d="M3 5h10M10 2l3 3-3 3M13 11H3M6 8l-3 3 3 3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div className="field-group">
+          <label className="field-label">Destino</label>
+          <select value={dest} onChange={e=>setDest(e.target.value)}>
+            {SYSTEMS.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {isPlanar(origin) && (
+        <div className="field-group">
+          <label className="field-label">Faja por defecto</label>
+          <select value={faja} onChange={e=>setFaja(e.target.value)}>
+            {FAJAS.map(f=><option key={f.value} value={f.value}>{f.label}</option>)}
+          </select>
+        </div>
+      )}
+
+      <div className="field-group">
+        <label className="field-label">Coordenadas (una por línea)</label>
+        <textarea
+          placeholder={isPlanar(origin) ? "4500234.5, 6172000.3\n3800100.0, 5900000.0" : "-34.6037, -58.3816\n-31.4201, -64.1888\n-38.9516, -68.0591"}
+          value={text}
+          onChange={e=>setText(e.target.value)}
+        />
+      </div>
+
+      <div style={{display:'flex',gap:'0.5rem'}}>
+        <button className="convert-btn" onClick={process}>Procesar lote</button>
+        {rows && <button className="btn-ghost" onClick={downloadCSV} style={{flexShrink:0}}>↓ CSV</button>}
+      </div>
+
+      {rows && (
+        <div className="batch-results">
+          <div className="batch-row header">
+            <span>Entrada</span><span>Resultado</span><span>Estado</span>
+          </div>
+          {rows.map((r, i) => (
+            <div className="batch-row" key={i}>
+              <span style={{fontFamily:'var(--mono)',fontSize:'11px',color:'var(--text-2)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.input}</span>
+              <span style={{fontFamily:'var(--mono)',fontSize:'11px'}}>{r.output}</span>
+              <span className={r.ok?'batch-ok':'batch-err'}>{r.ok?'✓':'✗'}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── HISTORY ──────────────────────────────────────────────────────────
+function HistoryPanel({ history, onClear, onDownload }) {
+  if (history.length === 0) return null;
+  return (
+    <div className="history-section">
+      <div className="divider" style={{margin:'0 0 1.25rem'}}></div>
+      <div className="history-header">
+        <span className="section-label" style={{marginBottom:0}}>Historial ({history.length})</span>
+        <div style={{display:'flex',gap:'0.5rem'}}>
+          <button className="btn-ghost" onClick={onDownload}>↓ CSV</button>
+          <button className="btn-ghost" onClick={onClear}>Limpiar</button>
+        </div>
+      </div>
+      <div className="history-list">
+        {[...history].reverse().map((item, i) => (
+          <div className="history-item" key={i}>
+            <span style={{color:'var(--text)',fontWeight:500}}>{item.label}</span>
+            <span className="history-tag">{item.from} → {item.to}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── TECH NOTE ────────────────────────────────────────────────────────
+function TechNote() {
+  return (
+    <div className="tech-note">
+      <div className="tech-note-header">
+        <span className="tech-badge">Nota técnica</span>
+        <span style={{fontSize:'12px',color:'var(--text-2)',fontWeight:500}}>Precisión y diferencias entre herramientas</span>
+      </div>
+      <div className="tech-note-body">
+        <p>Esta herramienta usa <strong>proj4js</strong> directamente en el navegador. Los resultados pueden diferir de software GIS profesional:</p>
+        <table className="tech-table">
+          <thead>
+            <tr><th>Componente</th><th>Diferencia típica</th><th>Causa</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Este (X)</td><td>~ 5–15 m</td><td>Precisión de serie de Mercator Transversa (proj4js vs. PROJ/GDAL)</td></tr>
+            <tr><td>Norte (Y)</td><td>~ 1.000–1.600 m</td><td>Convención de falso norte: esta app usa <code>lat₀=0° + y₀=10.000.000 m</code>; algunos software usan <code>lat₀=−90°</code> (polo sur)</td></tr>
+          </tbody>
+        </table>
+        <p>Para uso profesional (catastro, topografía, ingeniería) verificar el código EPSG y usar software certificado. Sistema oficial IGN Argentina: <strong>POSGAR 2007 (EPSG:5343–5349)</strong>.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────
+function App() {
+  const [tab, setTab] = useState('individual');
+  const [mapPoint, setMapPoint] = useState(null);
+  const [history, setHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('coord_history') || '[]'); } catch { return []; }
+  });
+
+  const handleResult = useCallback((res, from, to, input) => {
+    setMapPoint({ lat: res.lat, lon: res.lon });
+    const label = res.cards[0].lines.join(' | ');
+    const newItem = { label, from, to, ts: Date.now() };
+    setHistory(prev => {
+      const next = [...prev, newItem].slice(-50);
+      localStorage.setItem('coord_history', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem('coord_history');
+  };
+
+  const downloadHistory = () => {
+    let csv = 'Origen,Destino,Resultado,Fecha\n';
+    history.forEach(h => {
+      csv += `"${h.from}","${h.to}","${h.label}","${new Date(h.ts).toLocaleString('es-AR')}"\n`;
+    });
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'historial_coordenadas.csv'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <>
+      <header className="header">
+        <div className="header-logo">
+          <svg viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7" stroke="white" strokeWidth="1.5"/>
+            <path d="M9 2v14M2 9h14" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M4.2 5a9 9 0 0 1 9.6 0M4.2 13a9 9 0 0 0 9.6 0" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div className="header-title">Coordenada</div>
+          <div className="header-subtitle">Convertidor Geodésico Argentina</div>
+        </div>
+        <div className="header-author">Dr. Fabio A. Montealegre M.</div>
+      </header>
+
+      <div className="app-body">
+        {/* LEFT */}
+        <div className="left-col">
+          <div className="tabs">
+            <button className={`tab-btn${tab==='individual'?' active':''}`} onClick={()=>setTab('individual')}>Conversión individual</button>
+            <button className={`tab-btn${tab==='batch'?' active':''}`} onClick={()=>setTab('batch')}>Lote (batch)</button>
+          </div>
+
+          {tab === 'individual' && (
+            <>
+              <IndividualMode onResult={handleResult} />
+              <HistoryPanel history={history} onClear={clearHistory} onDownload={downloadHistory} />
+              <div style={{height:'1.5rem'}}></div>
+            </>
+          )}
+
+          {tab === 'batch' && <BatchMode />}
+        </div>
+
+        {/* RIGHT */}
+        <div className="right-col">
+          <div className="map-wrapper">
+            <MapView point={mapPoint} />
+          </div>
+          <TechNote />
+        </div>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
-
-<!-- NOTA TÉCNICA -->
-<div class="nota-tecnica">
-  <details>
-    <summary>⚠️ Nota técnica: precisión y diferencias entre herramientas de conversión</summary>
-
-    <p>Esta herramienta utiliza la librería <strong>proj4js</strong> para realizar las transformaciones de coordenadas directamente en el navegador. Los resultados son matemáticamente correctos para los parámetros definidos, pero pueden diferir ligeramente de los obtenidos con software GIS profesional (QGIS, ArcGIS, Global Mapper, etc.) por las razones que se detallan a continuación.</p>
-
-    <p><strong>Fuentes de diferencia entre herramientas:</strong></p>
-    <table>
-      <tr>
-        <th>Componente</th>
-        <th>Diferencia típica</th>
-        <th>Causa</th>
-      </tr>
-      <tr>
-        <td>Este (X)</td>
-        <td>~ 5 – 15 m</td>
-        <td>Diferencias en la precisión de la serie de Mercator Transversa entre implementaciones (proj4js vs. PROJ/GDAL)</td>
-      </tr>
-      <tr>
-        <td>Norte (Y)</td>
-        <td>~ 1.000 – 1.600 m</td>
-        <td>Convención del <em>falso norte</em>: esta app usa <code>lat_0 = 0° + y_0 = 10.000.000 m</code> (origen en el ecuador). Algunos software usan <code>lat_0 = −90° + y_0 = 0</code> (origen en el polo sur), lo que equivale a sumar el arco meridiano real del elipsoide hasta el polo (~10.001.966 m para WGS84), no exactamente 10.000.000 m.</td>
-      </tr>
-    </table>
-
-    <p><strong>Implicancia para el ejercicio práctico:</strong> Al transformar el mismo punto en esta app y en QGIS es esperable obtener valores de Norte que difieren en ~1.500 m. Esto NO significa que alguna de las dos herramientas esté equivocada: ambas aplican la proyección Mercator Transversa correctamente, pero con parámetros de origen distintos. Para verificar qué parámetros usa QGIS, consultar las propiedades del SRC de la capa reproyectada.</p>
-
-    <p><strong>Advertencia para uso profesional:</strong> En proyectos que requieren precisión geodésica (catastro, ingeniería, topografía), siempre se debe verificar el código EPSG y los parámetros exactos del sistema de referencia utilizados. Una diferencia de ~1.500 m en Norte puede tener consecuencias graves si no se detecta. Se recomienda usar el sistema oficial del IGN Argentina (POSGAR 2007, EPSG:5343 – 5349) y el software certificado.</p>
-  </details>
-</div>
-
-<!-- PIE DE PÁGINA -->
-<div class="footer-app">
-  Desarrollado por <strong>Dr. Fabio A. Montealegre M.</strong> &nbsp;|&nbsp; Herramienta de uso académico y didáctico &nbsp;|&nbsp; Los resultados no reemplazan el uso de software geodésico certificado para aplicaciones profesionales.
-</div>
-
 </body>
 </html>
