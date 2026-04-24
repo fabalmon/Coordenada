@@ -445,20 +445,23 @@ textarea {
 @media (max-width: 860px) {
   html, body, #root { height: auto; min-height: 100%; overflow-y: auto; }
   .app-body {
-    display: block;
+    display: flex;
+    flex-direction: column;
     overflow: visible;
   }
   .left-col {
     overflow: visible;
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    order: 1;
   }
   .right-col {
     display: flex;
     flex-direction: column;
     border-right: none;
+    border-top: 1px solid var(--border);
+    order: 2;
   }
-  .map-wrapper { height: 360px; flex-shrink: 0; }
+  .map-wrapper { height: 320px; flex-shrink: 0; }
   .header-author { display: none; }
   .mobile-author { display: block; }
   .tech-note { flex-shrink: 0; }
@@ -606,10 +609,17 @@ function MapView({ point }) {
     }).addTo(m);
     FAJA_MERIDIANS.forEach((lon, i) => {
       L.polyline([[-21.8, lon],[-55.5, lon]], {
-        color: 'oklch(52% 0.19 252)', weight: 1, opacity: 0.35, dashArray: '4,6'
+        color: '#2563eb', weight: 1, opacity: 0.35, dashArray: '4,6'
       }).addTo(m).bindTooltip(`Faja ${i+1} — ${Math.abs(lon)}°O`);
     });
     instanceRef.current = m;
+
+    // Forzar recálculo cuando el contenedor cambia de tamaño (ej. en móvil)
+    const ro = new ResizeObserver(() => {
+      if (instanceRef.current) instanceRef.current.invalidateSize();
+    });
+    ro.observe(mapRef.current);
+    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {
