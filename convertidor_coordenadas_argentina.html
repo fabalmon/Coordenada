@@ -72,6 +72,7 @@ html, body {
 .header-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
 .header-subtitle { font-size: 12px; color: var(--text-3); margin-left: 2px; }
 .header-author { margin-left: auto; font-size: 12px; color: var(--text-3); }
+.mobile-author { display: none; text-align: center; font-size: 12px; color: var(--text-3); padding: 0.6rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
 
 /* LAYOUT */
 .app-body {
@@ -412,15 +413,43 @@ textarea {
 .tech-table th { background: oklch(93% 0.05 70); padding: 0.35rem 0.6rem; text-align: left; border: 1px solid oklch(85% 0.07 70); color: var(--text-2); font-weight: 600; }
 .tech-table td { padding: 0.35rem 0.6rem; border: 1px solid oklch(85% 0.07 70); }
 
+.tech-note-collapsed { max-height: 56px; overflow: hidden; position: relative; }
+.tech-note-collapsed::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 32px;
+  background: linear-gradient(transparent, oklch(98.5% 0.01 80));
+}
+.tech-expand-btn {
+  background: none; border: none; padding: 0;
+  font-family: var(--sans); font-size: 12px; font-weight: 600;
+  color: var(--accent); cursor: pointer; margin-top: 0.4rem;
+  display: flex; align-items: center; gap: 0.3rem;
+}
+.tech-expand-btn:hover { opacity: 0.75; }
+
+.footer-copyright {
+  text-align: center;
+  padding: 0.6rem 1.25rem;
+  font-size: 11px;
+  color: var(--text-3);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  letter-spacing: 0.1px;
+}
+
 /* DIVIDER */
 .divider { height: 1px; background: var(--border); margin: 0 1.5rem; }
 
 /* MOBILE */
 @media (max-width: 860px) {
-  .app-body { grid-template-columns: 1fr; grid-template-rows: auto 380px; overflow: auto; }
-  .left-col { overflow: visible; }
-  .right-col { border-top: 1px solid var(--border); border-right: none; }
+  .app-body { grid-template-columns: 1fr; overflow: auto; display: flex; flex-direction: column; }
+  .left-col { overflow: visible; flex-shrink: 0; }
+  .right-col { border-top: 1px solid var(--border); border-right: none; display: flex; flex-direction: column; min-height: 0; }
+  .map-wrapper { height: 360px; flex-shrink: 0; }
   .header-author { display: none; }
+  .mobile-author { display: block; }
+  .tech-note { flex-shrink: 0; }
 }
 
 /* LEAFLET overrides */
@@ -919,25 +948,42 @@ function HistoryPanel({ history, onClear, onDownload }) {
 
 // ─── TECH NOTE ────────────────────────────────────────────────────────
 function TechNote() {
+  const [expanded, setExpanded] = React.useState(false);
   return (
     <div className="tech-note">
       <div className="tech-note-header">
         <span className="tech-badge">Nota técnica</span>
-        <span style={{fontSize:'12px',color:'var(--text-2)',fontWeight:500}}>Precisión y diferencias entre herramientas</span>
+        <span style={{fontSize:'12px',color:'var(--text-2)',fontWeight:500}}>Precisión y diferencias entre herramientas de conversión</span>
       </div>
-      <div className="tech-note-body">
-        <p>Esta herramienta usa <strong>proj4js</strong> directamente en el navegador. Los resultados pueden diferir de software GIS profesional:</p>
-        <table className="tech-table">
-          <thead>
-            <tr><th>Componente</th><th>Diferencia típica</th><th>Causa</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Este (X)</td><td>~ 5–15 m</td><td>Precisión de serie de Mercator Transversa (proj4js vs. PROJ/GDAL)</td></tr>
-            <tr><td>Norte (Y)</td><td>~ 1.000–1.600 m</td><td>Convención de falso norte: esta app usa <code>lat₀=0° + y₀=10.000.000 m</code>; algunos software usan <code>lat₀=−90°</code> (polo sur)</td></tr>
-          </tbody>
-        </table>
-        <p>Para uso profesional (catastro, topografía, ingeniería) verificar el código EPSG y usar software certificado. Sistema oficial IGN Argentina: <strong>POSGAR 2007 (EPSG:5343–5349)</strong>.</p>
+      <div className={`tech-note-body${expanded ? '' : ' tech-note-collapsed'}`}>
+        <p>Esta herramienta utiliza la librería <strong>proj4js</strong> para realizar las transformaciones directamente en el navegador. Los resultados son matemáticamente correctos para los parámetros definidos, pero pueden diferir de los obtenidos con software GIS profesional (QGIS, ArcGIS, Global Mapper) por las razones que se detallan a continuación.</p>
+        {expanded && <>
+          <table className="tech-table">
+            <thead>
+              <tr><th>Componente</th><th>Diferencia típica</th><th>Causa</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Este (X)</td>
+                <td>~ 5–15 m</td>
+                <td>Diferencias en la precisión de la serie de Mercator Transversa entre implementaciones (proj4js vs. PROJ/GDAL)</td>
+              </tr>
+              <tr>
+                <td>Norte (Y)</td>
+                <td>~ 1.000–1.600 m</td>
+                <td>Convención del <em>falso norte</em>: esta app usa <code>lat₀=0° + y₀=10.000.000 m</code> (origen en el ecuador). Algunos software usan <code>lat₀=−90° + y₀=0</code> (origen en el polo sur), equivalente a sumar el arco meridiano real del elipsoide (~10.001.966 m para WGS84).</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><strong>Implicancia práctica:</strong> Al transformar el mismo punto en esta app y en QGIS es esperable obtener valores de Norte que difieren en ~1.500 m. Esto <em>no</em> significa que alguna herramienta esté equivocada: ambas aplican la proyección correctamente pero con parámetros de origen distintos.</p>
+          <p style={{marginTop:'0.5rem'}}><strong>Advertencia para uso profesional:</strong> En proyectos que requieren precisión geodésica (catastro, ingeniería, topografía), siempre verificar el código EPSG y los parámetros exactos. Una diferencia de ~1.500 m en Norte puede tener consecuencias graves. Se recomienda el sistema oficial del IGN Argentina: <strong>POSGAR 2007 (EPSG:5343–5349)</strong> y software certificado.</p>
+        </>}
       </div>
+      <button className="tech-expand-btn" onClick={() => setExpanded(e => !e)}>
+        {expanded
+          ? <><span>▲</span> Cerrar</>
+          : <><span>▼</span> Ver detalles y advertencias</>}
+      </button>
     </div>
   );
 }
@@ -991,9 +1037,10 @@ function App() {
           <div className="header-title">Coordenada</div>
           <div className="header-subtitle">Convertidor Geodésico Argentina</div>
         </div>
-        <div className="header-author">Dr. Fabio A. Montealegre M.</div>
+        <div className="header-author">© {new Date().getFullYear()} Dr. Fabio A. Montealegre M. — uso académico y didáctico</div>
       </header>
 
+      <div className="mobile-author">© {new Date().getFullYear()} Dr. Fabio A. Montealegre M. — Herramienta de uso académico</div>
       <div className="app-body">
         {/* LEFT */}
         <div className="left-col">
@@ -1019,6 +1066,9 @@ function App() {
             <MapView point={mapPoint} />
           </div>
           <TechNote />
+          <div className="footer-copyright">
+            © {new Date().getFullYear()} Dr. Fabio A. Montealegre M. — Desarrollado con fines académicos y didácticos. Los resultados no reemplazan el uso de software geodésico certificado para aplicaciones profesionales.
+          </div>
         </div>
       </div>
     </>
