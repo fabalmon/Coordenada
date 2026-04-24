@@ -389,8 +389,8 @@ button.primary:hover {
     <h3 id="formatTitle">Coordenadas geográficas</h3>
     
     <div class="format-toggle" id="formatToggle" style="display:none;">
-      <button class="active" onclick="setFormat('decimal')">Decimal</button>
-      <button onclick="setFormat('gms')">GMS</button>
+      <button class="active" onclick="setFormat('decimal', this)">Decimal</button>
+      <button onclick="setFormat('gms', this)">GMS</button>
     </div>
 
     <!-- Entrada decimal -->
@@ -442,7 +442,7 @@ button.primary:hover {
       <div class="input-group" id="fajaSelector" style="display:none;">
         <label>Faja</label>
         <select id="faja">
-          <option value="1">Faja 1 (68°O)</option>
+          <option value="1">Faja 1 (66°O)</option>
           <option value="2">Faja 2 (69°O)</option>
           <option value="3">Faja 3 (72°O)</option>
           <option value="4">Faja 4 (75°O)</option>
@@ -504,14 +504,15 @@ let conversionHistory = [];
 // Registrar proyecciones
 proj4.defs('EPSG:4326', '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs');
 
+// Gauss-Krüger Argentina se basa en el datum Campo Inchauspe (+towgs84 requerido para conversión correcta a WGS84)
 const gaussKrugerDefs = {
-  1: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=1500000 +y_0=0 +ellps=intl +units=m +no_defs',
-  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=0 +ellps=intl +units=m +no_defs',
-  3: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=3500000 +y_0=0 +ellps=intl +units=m +no_defs',
-  4: '+proj=tmerc +lon_0=-75 +k=0.9999 +x_0=4500000 +y_0=0 +ellps=intl +units=m +no_defs',
-  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=0 +ellps=intl +units=m +no_defs',
-  6: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=6500000 +y_0=0 +ellps=intl +units=m +no_defs',
-  7: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=7500000 +y_0=0 +ellps=intl +units=m +no_defs'
+  1: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=1500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  3: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=3500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  4: '+proj=tmerc +lon_0=-75 +k=0.9999 +x_0=4500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  6: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=6500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  7: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=7500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs'
 };
 
 Object.keys(gaussKrugerDefs).forEach(faja => {
@@ -592,9 +593,9 @@ function updateFormatOptions() {
   }
 }
 
-function setFormat(format) {
+function setFormat(format, btn) {
   document.querySelectorAll('.format-toggle button').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   document.getElementById('decimalInput').style.display = format === 'decimal' ? 'block' : 'none';
   document.getElementById('gmsInput').style.display = format === 'gms' ? 'block' : 'none';
 }
@@ -635,8 +636,10 @@ function getWGS84Input() {
 
     if (isNaN(latGrad) || isNaN(lonGrad)) throw new Error('Ingrese grados válidos');
 
-    const lat = latGrad + latMin / 60 + latSeg / 3600;
-    const lon = lonGrad + lonMin / 60 + lonSeg / 3600;
+    const signLat = latGrad < 0 ? -1 : 1;
+    const lat = signLat * (Math.abs(latGrad) + latMin / 60 + latSeg / 3600);
+    const signLon = lonGrad < 0 ? -1 : 1;
+    const lon = signLon * (Math.abs(lonGrad) + lonMin / 60 + lonSeg / 3600);
     return { lat, lon };
   }
 }
@@ -650,13 +653,13 @@ function getPlanarInput() {
 }
 
 function detectFaja(lon) {
-  if (lon < -67.5) return 1;
-  if (lon < -70.5) return 2;
-  if (lon < -73.5) return 3;
-  if (lon < -76.5) return 4;
-  if (lon < -61.5) return 5;
-  if (lon < -64.5) return 6;
-  return 7;
+  if (lon >= -58.5) return 7;  // CM 57°O
+  if (lon >= -61.5) return 5;  // CM 60°O
+  if (lon >= -64.5) return 6;  // CM 63°O
+  if (lon >= -67.5) return 1;  // CM 66°O
+  if (lon >= -70.5) return 2;  // CM 69°O
+  if (lon >= -73.5) return 3;  // CM 72°O
+  return 4;                    // CM 75°O
 }
 
 function convertCoords(coords, originSystem, destinySystem) {
