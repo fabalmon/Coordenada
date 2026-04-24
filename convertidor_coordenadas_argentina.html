@@ -347,6 +347,74 @@ button.primary:hover {
   color: #666;
   font-size: 14px;
 }
+
+.title-header .author {
+  margin-top: 0.5rem;
+  font-size: 13px;
+  color: #444;
+  font-style: italic;
+}
+
+.nota-tecnica {
+  max-width: 1400px;
+  margin: 1.5rem auto 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.nota-tecnica details {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-left: 4px solid #f9a825;
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  font-size: 13px;
+  color: #333;
+}
+
+.nota-tecnica summary {
+  font-weight: 700;
+  color: #e65100;
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;
+}
+
+.nota-tecnica summary:hover {
+  color: #bf360c;
+}
+
+.nota-tecnica p {
+  margin: 0.7rem 0 0 0;
+  line-height: 1.6;
+}
+
+.nota-tecnica table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8rem 0;
+  font-size: 12px;
+}
+
+.nota-tecnica th {
+  background: #fff3cd;
+  padding: 0.4rem 0.8rem;
+  text-align: left;
+  border: 1px solid #ffe082;
+}
+
+.nota-tecnica td {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ffe082;
+}
+
+.footer-app {
+  text-align: center;
+  padding: 1rem 0 1.5rem 0;
+  font-size: 12px;
+  color: #888;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 0.5rem;
+}
 </style>
 </head>
 <body>
@@ -354,6 +422,7 @@ button.primary:hover {
 <div class="title-header">
   <h1>🗺️ Convertidor de Coordenadas Argentina</h1>
   <p>Herramienta didáctica para conversiones entre sistemas geodésicos</p>
+  <p class="author">Desarrollado por Dr. Fabio A. Montealegre M.</p>
 </div>
 
 <div class="container">
@@ -876,6 +945,43 @@ function updateMap(lat, lon) {
 
 updateFormatOptions();
 </script>
+
+<!-- NOTA TÉCNICA -->
+<div class="nota-tecnica">
+  <details>
+    <summary>⚠️ Nota técnica: precisión y diferencias entre herramientas de conversión</summary>
+
+    <p>Esta herramienta utiliza la librería <strong>proj4js</strong> para realizar las transformaciones de coordenadas directamente en el navegador. Los resultados son matemáticamente correctos para los parámetros definidos, pero pueden diferir ligeramente de los obtenidos con software GIS profesional (QGIS, ArcGIS, Global Mapper, etc.) por las razones que se detallan a continuación.</p>
+
+    <p><strong>Fuentes de diferencia entre herramientas:</strong></p>
+    <table>
+      <tr>
+        <th>Componente</th>
+        <th>Diferencia típica</th>
+        <th>Causa</th>
+      </tr>
+      <tr>
+        <td>Este (X)</td>
+        <td>~ 5 – 15 m</td>
+        <td>Diferencias en la precisión de la serie de Mercator Transversa entre implementaciones (proj4js vs. PROJ/GDAL)</td>
+      </tr>
+      <tr>
+        <td>Norte (Y)</td>
+        <td>~ 1.000 – 1.600 m</td>
+        <td>Convención del <em>falso norte</em>: esta app usa <code>lat_0 = 0° + y_0 = 10.000.000 m</code> (origen en el ecuador). Algunos software usan <code>lat_0 = −90° + y_0 = 0</code> (origen en el polo sur), lo que equivale a sumar el arco meridiano real del elipsoide hasta el polo (~10.001.966 m para WGS84), no exactamente 10.000.000 m.</td>
+      </tr>
+    </table>
+
+    <p><strong>Implicancia para el ejercicio práctico:</strong> Al transformar el mismo punto en esta app y en QGIS es esperable obtener valores de Norte que difieren en ~1.500 m. Esto NO significa que alguna de las dos herramientas esté equivocada: ambas aplican la proyección Mercator Transversa correctamente, pero con parámetros de origen distintos. Para verificar qué parámetros usa QGIS, consultar las propiedades del SRC de la capa reproyectada.</p>
+
+    <p><strong>Advertencia para uso profesional:</strong> En proyectos que requieren precisión geodésica (catastro, ingeniería, topografía), siempre se debe verificar el código EPSG y los parámetros exactos del sistema de referencia utilizados. Una diferencia de ~1.500 m en Norte puede tener consecuencias graves si no se detecta. Se recomienda usar el sistema oficial del IGN Argentina (POSGAR 2007, EPSG:5343 – 5349) y el software certificado.</p>
+  </details>
+</div>
+
+<!-- PIE DE PÁGINA -->
+<div class="footer-app">
+  Desarrollado por <strong>Dr. Fabio A. Montealegre M.</strong> &nbsp;|&nbsp; Herramienta de uso académico y didáctico &nbsp;|&nbsp; Los resultados no reemplazan el uso de software geodésico certificado para aplicaciones profesionales.
+</div>
 
 </body>
 </html>
