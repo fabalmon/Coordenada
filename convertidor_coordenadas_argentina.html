@@ -18,10 +18,9 @@
   --bg: #f7f7f5;
   --surface: #ffffff;
   --border: #e4e4de;
-  --border-strong: #d0d0c8;
-  --accent: oklch(52% 0.19 252);
-  --accent-light: oklch(96% 0.04 252);
-  --accent-mid: oklch(75% 0.12 252);
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --accent-mid: #93c5fd;
   --text: #111318;
   --text-2: #52525e;
   --text-3: #8f8f9c;
@@ -29,138 +28,111 @@
   --sans: 'DM Sans', sans-serif;
   --radius: 8px;
   --radius-lg: 12px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.07);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
+body {
   font-family: var(--sans);
   background: var(--bg);
   color: var(--text);
-  height: 100%;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-#root { height: 100%; display: flex; flex-direction: column; }
-
 /* HEADER */
 .header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
+  padding: 0 1.5rem;
   height: 56px;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
+  gap: 0.85rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-logo {
-  width: 32px; height: 32px;
+  width: 30px; height: 30px;
   background: var(--accent);
-  border-radius: 8px;
+  border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 
-.header-logo svg { width: 18px; height: 18px; }
+.header-name { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+.header-sub { font-size: 12px; color: var(--text-3); }
+.header-copy { margin-left: auto; font-size: 11px; color: var(--text-3); text-align: right; }
 
-.header-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
-.header-subtitle { font-size: 12px; color: var(--text-3); margin-left: 2px; }
-.header-author { margin-left: auto; font-size: 12px; color: var(--text-3); }
-.mobile-author { display: none; text-align: center; font-size: 12px; color: var(--text-3); padding: 0.6rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
-
-/* LAYOUT */
-.app-body {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 480px 1fr;
-  overflow: hidden;
-}
-
-.left-col {
+/* MAIN */
+.main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  border-right: 1px solid var(--border);
-  background: var(--bg);
-}
-
-.right-col {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--surface);
+  gap: 1.25rem;
 }
 
 /* TABS */
 .tabs {
   display: flex;
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 1.5rem;
-  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  gap: 4px;
 }
 
 .tab-btn {
-  padding: 0.9rem 0.25rem;
-  margin-right: 1.5rem;
+  flex: 1;
+  padding: 0.6rem;
   border: none;
   background: transparent;
-  color: var(--text-3);
   font-family: var(--sans);
   font-size: 13px;
   font-weight: 500;
+  color: var(--text-3);
+  border-radius: 8px;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition: all 0.15s;
 }
 
-.tab-btn:hover { color: var(--text-2); }
-.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-/* FORM SECTION */
-.form-section {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+.tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
 }
 
-.section-label {
-  font-size: 10px;
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.card-title {
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   color: var(--text-3);
-  margin-bottom: 0.6rem;
+  margin-bottom: 1rem;
 }
 
-/* SYSTEM SELECTOR */
+/* SYSTEM ROW */
 .system-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   gap: 0.5rem;
   align-items: end;
+  margin-bottom: 1.25rem;
 }
-
-.swap-btn {
-  width: 36px; height: 36px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: var(--radius);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  color: var(--text-2);
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-
-.swap-btn:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
 
 .field-group { display: flex; flex-direction: column; }
 
@@ -168,7 +140,7 @@ label.field-label {
   font-size: 11px;
   font-weight: 600;
   color: var(--text-2);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -185,13 +157,32 @@ select, input[type="number"], input[type="text"], textarea {
   width: 100%;
 }
 
-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238f8f9c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2rem; }
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238f8f9c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+}
 
 select:focus, input:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px oklch(52% 0.19 252 / 0.1);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
+
+.swap-btn {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text-2);
+  transition: all 0.15s;
+}
+.swap-btn:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
 
 /* FORMAT TOGGLE */
 .format-toggle {
@@ -201,11 +192,12 @@ select:focus, input:focus, textarea:focus {
   border-radius: var(--radius);
   padding: 3px;
   gap: 3px;
+  margin-bottom: 1rem;
 }
 
 .format-btn {
   flex: 1;
-  padding: 0.4rem 0.75rem;
+  padding: 0.35rem 0.75rem;
   border: none;
   background: transparent;
   font-family: var(--sans);
@@ -216,20 +208,14 @@ select:focus, input:focus, textarea:focus {
   cursor: pointer;
   transition: all 0.15s;
 }
+.format-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); font-weight: 600; }
 
-.format-btn.active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow);
-  font-weight: 600;
-}
-
-/* COORD INPUTS */
-.input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+/* INPUTS */
+.input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
 .input-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
 .input-mono input { font-family: var(--mono); font-size: 13px; }
 
-/* CONVERT BUTTON */
+/* CONVERT BTN */
 .convert-btn {
   width: 100%;
   padding: 0.8rem;
@@ -242,30 +228,36 @@ select:focus, input:focus, textarea:focus {
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
-  letter-spacing: -0.1px;
 }
-
 .convert-btn:hover { opacity: 0.9; }
 .convert-btn:active { transform: scale(0.99); }
+
+.btn-ghost {
+  border: 1px solid var(--border);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-ghost:hover { background: var(--bg); border-color: #c0c0b8; }
 
 /* RESULTS */
 .results-panel {
   background: var(--accent-light);
-  border: 1px solid oklch(85% 0.07 252);
+  border: 1px solid #bfdbfe;
   border-radius: var(--radius-lg);
   padding: 1.25rem;
 }
-
-.results-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.results-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
-
+.results-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); margin-bottom: 0.75rem; }
 .result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+@media (max-width: 480px) { .result-cards { grid-template-columns: 1fr; } }
 
 .result-card {
   background: var(--surface);
@@ -274,7 +266,6 @@ select:focus, input:focus, textarea:focus {
   padding: 0.85rem 1rem;
   position: relative;
 }
-
 .result-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-3); margin-bottom: 0.5rem; }
 .result-value { font-family: var(--mono); font-size: 13px; color: var(--text); line-height: 1.7; }
 
@@ -290,189 +281,82 @@ select:focus, input:focus, textarea:focus {
   transition: all 0.15s;
   font-size: 11px;
 }
-
 .copy-btn:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
-.copy-btn.copied { background: oklch(93% 0.08 150); border-color: oklch(70% 0.15 150); color: oklch(40% 0.15 150); }
+.copy-btn.copied { background: #dcfce7; border-color: #86efac; color: #16a34a; }
 
 /* ERROR */
 .error-msg {
-  background: oklch(97% 0.03 15);
-  border: 1px solid oklch(85% 0.1 15);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: var(--radius);
   padding: 0.75rem 1rem;
   font-size: 13px;
-  color: oklch(40% 0.15 15);
+  color: #dc2626;
+  margin-bottom: 1rem;
 }
+
+/* MAP */
+#map {
+  width: 100%;
+  height: 420px;
+  border-radius: var(--radius);
+  z-index: 1;
+}
+
+@media (max-width: 600px) { #map { height: 300px; } }
 
 /* HISTORY */
-.history-section { padding: 0 1.5rem 1.5rem; }
-.history-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.history-list {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  max-height: 220px;
-  overflow-y: auto;
-}
-
+.history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.history-list { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; max-height: 200px; overflow-y: auto; }
 .history-item {
-  padding: 0.65rem 0.9rem;
+  padding: 0.6rem 0.9rem;
   border-bottom: 1px solid var(--border);
   font-size: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  transition: background 0.1s;
   gap: 0.5rem;
 }
-
 .history-item:last-child { border-bottom: none; }
-.history-item:hover { background: var(--bg); }
 .history-tag { font-family: var(--mono); font-size: 11px; color: var(--text-3); flex-shrink: 0; }
 
-.btn-ghost {
-  border: 1px solid var(--border);
-  background: transparent;
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-2);
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
+/* TECH NOTE */
+.tech-note { background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+.tech-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: #fef3c7; color: #b45309; padding: 2px 6px; border-radius: 4px; margin-right: 0.5rem; }
+.tech-note-body { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+.tech-note-collapsed { max-height: 52px; overflow: hidden; position: relative; }
+.tech-note-collapsed::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 28px; background: linear-gradient(transparent, #fffbeb); }
+.tech-expand-btn { background: none; border: none; padding: 0; font-family: var(--sans); font-size: 12px; font-weight: 600; color: #b45309; cursor: pointer; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.3rem; }
+.tech-expand-btn:hover { opacity: 0.75; }
+.tech-table { width: 100%; border-collapse: collapse; margin: 0.6rem 0; font-size: 11px; }
+.tech-table th { background: #fef3c7; padding: 0.35rem 0.6rem; text-align: left; border: 1px solid #fde68a; color: var(--text-2); font-weight: 600; }
+.tech-table td { padding: 0.35rem 0.6rem; border: 1px solid #fde68a; }
 
-.btn-ghost:hover { background: var(--bg); border-color: var(--border-strong); }
-
-/* BATCH */
-.batch-section { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-.batch-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; }
-
-textarea {
-  font-family: var(--mono);
-  font-size: 12px;
-  resize: vertical;
-  min-height: 140px;
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 0.75rem 1.25rem 1.5rem;
+  font-size: 11px;
+  color: var(--text-3);
   line-height: 1.6;
 }
 
-.batch-results {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.batch-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 0.5rem;
-  padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  align-items: center;
-}
-
+/* BATCH */
+textarea { font-family: var(--mono); font-size: 12px; resize: vertical; min-height: 120px; line-height: 1.6; }
+.batch-results { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 0.75rem; }
+.batch-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 12px; align-items: center; }
 .batch-row:last-child { border-bottom: none; }
 .batch-row.header { background: var(--bg); font-weight: 600; font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.3px; }
-.batch-ok { color: oklch(45% 0.15 150); }
-.batch-err { color: oklch(45% 0.2 15); }
+.batch-ok { color: #16a34a; }
+.batch-err { color: #dc2626; }
 
-/* MAP */
-.map-wrapper { flex: 1; position: relative; overflow: hidden; }
-#map { width: 100%; height: 100%; }
-
-/* TECH NOTE */
-.tech-note {
-  border-top: 1px solid var(--border);
-  padding: 1rem 1.25rem;
-  flex-shrink: 0;
-  background: oklch(98.5% 0.01 80);
-}
-
-.tech-note-header {
-  display: flex; align-items: center; gap: 0.5rem;
-  margin-bottom: 0.6rem;
-}
-
-.tech-badge {
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-  background: oklch(90% 0.08 70); color: oklch(35% 0.12 70);
-  padding: 2px 6px; border-radius: 4px;
-}
-
-.tech-note-body { font-size: 12px; color: var(--text-2); line-height: 1.65; }
-.tech-note-body strong { color: var(--text); }
-
-.tech-table { width: 100%; border-collapse: collapse; margin: 0.6rem 0; font-size: 11px; }
-.tech-table th { background: oklch(93% 0.05 70); padding: 0.35rem 0.6rem; text-align: left; border: 1px solid oklch(85% 0.07 70); color: var(--text-2); font-weight: 600; }
-.tech-table td { padding: 0.35rem 0.6rem; border: 1px solid oklch(85% 0.07 70); }
-
-.tech-note-collapsed { max-height: 56px; overflow: hidden; position: relative; }
-.tech-note-collapsed::after {
-  content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 32px;
-  background: linear-gradient(transparent, oklch(98.5% 0.01 80));
-}
-.tech-expand-btn {
-  background: none; border: none; padding: 0;
-  font-family: var(--sans); font-size: 12px; font-weight: 600;
-  color: var(--accent); cursor: pointer; margin-top: 0.4rem;
-  display: flex; align-items: center; gap: 0.3rem;
-}
-.tech-expand-btn:hover { opacity: 0.75; }
-
-.footer-copyright {
-  text-align: center;
-  padding: 0.6rem 1.25rem;
-  font-size: 11px;
-  color: var(--text-3);
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-  flex-shrink: 0;
-  letter-spacing: 0.1px;
-}
-
-/* DIVIDER */
-.divider { height: 1px; background: var(--border); margin: 0 1.5rem; }
-
-/* MOBILE */
-@media (max-width: 860px) {
-  html, body, #root { height: auto; min-height: 100%; overflow-y: auto; }
-  .app-body {
-    display: flex;
-    flex-direction: column;
-    overflow: visible;
-  }
-  .left-col {
-    overflow: visible;
-    border-right: none;
-    order: 1;
-  }
-  .right-col {
-    display: flex;
-    flex-direction: column;
-    border-right: none;
-    border-top: 1px solid var(--border);
-    order: 2;
-  }
-  .map-wrapper { height: 320px; flex-shrink: 0; }
-  .header-author { display: none; }
-  .mobile-author { display: block; }
-  .tech-note { flex-shrink: 0; }
-  .footer-copyright { font-size: 10px; padding: 0.5rem 1rem; }
-}
-
-/* LEAFLET overrides */
-.leaflet-control-attribution { font-size: 10px !important; }
+.map-legend { display: flex; gap: 1rem; margin-top: 0.6rem; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 11px; color: var(--text-2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 </style>
 </head>
 <body>
+
 <div id="root"></div>
 
 <script type="text/babel">
@@ -502,36 +386,33 @@ const posgar2007Defs = {
 [1,2,3,4,5,6].forEach(f => {
   proj4.defs(`GK${f}`, gaussKrugerDefs[f]);
   proj4.defs(`P7${f}`, posgar2007Defs[f]);
-  proj4.defs(`P8${f}`, posgar2007Defs[f]); // POSGAR 1998 ~ same grid
-  proj4.defs(`P4${f}`, posgar2007Defs[f]); // POSGAR 1994 ~ same grid
-  proj4.defs(`CH${f}`, gaussKrugerDefs[f]); // Campos Hinchauspe = GK datum
+  proj4.defs(`P8${f}`, posgar2007Defs[f]);
+  proj4.defs(`P4${f}`, posgar2007Defs[f]);
+  proj4.defs(`CH${f}`, gaussKrugerDefs[f]);
 });
 
 const SYSTEMS = [
-  { value: 'WGS84', label: 'WGS84 (lat/lon)', planar: false },
-  { value: 'POSGAR2007', label: 'POSGAR 2007', planar: true, prefix: 'P7' },
-  { value: 'POSGAR1998', label: 'POSGAR 1998', planar: true, prefix: 'P8' },
-  { value: 'POSGAR1994', label: 'POSGAR 1994', planar: true, prefix: 'P4' },
-  { value: 'GaussKruger', label: 'Gauss-Krüger', planar: true, prefix: 'GK' },
-  { value: 'CamposHinchauspe', label: 'Campos Hinchauspe', planar: true, prefix: 'CH' },
+  { value: 'WGS84',            label: 'WGS84 (lat/lon)',       planar: false },
+  { value: 'POSGAR2007',       label: 'POSGAR 2007',           planar: true, prefix: 'P7' },
+  { value: 'POSGAR1998',       label: 'POSGAR 1998',           planar: true, prefix: 'P8' },
+  { value: 'POSGAR1994',       label: 'POSGAR 1994',           planar: true, prefix: 'P4' },
+  { value: 'GaussKruger',      label: 'Gauss-Krüger',          planar: true, prefix: 'GK' },
+  { value: 'CamposHinchauspe', label: 'Campos Hinchauspe',     planar: true, prefix: 'CH' },
 ];
 
 const FAJAS = [
-  { value: '1', label: 'Faja 1 — 72°O (Cuyo / Patagonia W)' },
-  { value: '2', label: 'Faja 2 — 69°O (Neuquén / San Juan)' },
-  { value: '3', label: 'Faja 3 — 66°O (La Rioja / Córdoba W)' },
-  { value: '4', label: 'Faja 4 — 63°O (Córdoba / Santa Fe)' },
-  { value: '5', label: 'Faja 5 — 60°O (Entre Ríos / Chaco)' },
-  { value: '6', label: 'Faja 6 — 57°O (Buenos Aires / Misiones)' },
+  { value:'1', label:'Faja 1 — 72°O (Cuyo / Patagonia W)' },
+  { value:'2', label:'Faja 2 — 69°O (Neuquén / San Juan)' },
+  { value:'3', label:'Faja 3 — 66°O (La Rioja / Córdoba W)' },
+  { value:'4', label:'Faja 4 — 63°O (Córdoba / Santa Fe)' },
+  { value:'5', label:'Faja 5 — 60°O (Entre Ríos / Chaco)' },
+  { value:'6', label:'Faja 6 — 57°O (Buenos Aires / Misiones)' },
 ];
 
-function getPrefix(sys) {
-  return SYSTEMS.find(s => s.value === sys)?.prefix;
-}
+const FAJA_MERIDIANS = [-72,-69,-66,-63,-60,-57];
 
-function isPlanar(sys) {
-  return SYSTEMS.find(s => s.value === sys)?.planar ?? false;
-}
+function isPlanar(sys) { return SYSTEMS.find(s => s.value === sys)?.planar ?? false; }
+function getPrefix(sys) { return SYSTEMS.find(s => s.value === sys)?.prefix; }
 
 function detectFaja(lon) {
   if (lon >= -58.5) return '6';
@@ -542,18 +423,13 @@ function detectFaja(lon) {
   return '1';
 }
 
-function decimalToGMS(decimal) {
-  const sign = decimal >= 0 ? 1 : -1;
-  const abs = Math.abs(decimal);
-  const g = Math.floor(abs);
-  const m = Math.floor((abs - g) * 60);
-  const s = ((abs - g) * 60 - m) * 60;
-  return { g: sign * g, m, s };
+function decimalToGMS(d) {
+  const s = d >= 0 ? 1 : -1, a = Math.abs(d);
+  const g = Math.floor(a), m = Math.floor((a-g)*60), sec = ((a-g)*60-m)*60;
+  return { g: s*g, m, s: sec };
 }
 
-function gmsStr({ g, m, s }) {
-  return `${g}° ${m}' ${s.toFixed(2)}"`;
-}
+function gmsStr({ g, m, s }) { return `${g}° ${m}' ${s.toFixed(2)}"`; }
 
 function convertCoords(originSys, destSys, input) {
   let lat, lon;
@@ -564,23 +440,22 @@ function convertCoords(originSys, destSys, input) {
     const pt = proj4(def, 'EPSG:4326', [input.east, input.north]);
     lon = pt[0]; lat = pt[1];
   }
-  if (lat == null || lon == null || isNaN(lat) || isNaN(lon)) throw new Error('Coordenadas inválidas');
+  if (isNaN(lat) || isNaN(lon)) throw new Error('Coordenadas inválidas');
 
   if (!isPlanar(destSys)) {
-    const gmsLat = decimalToGMS(lat); const gmsLon = decimalToGMS(lon);
+    const gl = decimalToGMS(lat), glo = decimalToGMS(lon);
     return {
       lat, lon,
       cards: [
         { label: 'WGS84 Decimal', lines: [`Lat: ${lat.toFixed(6)}°`, `Lon: ${lon.toFixed(6)}°`], copy: `${lat.toFixed(6)}, ${lon.toFixed(6)}` },
-        { label: 'WGS84 GMS', lines: [`Lat: ${gmsStr(gmsLat)}`, `Lon: ${gmsStr(gmsLon)}`], copy: `${gmsStr(gmsLat)}, ${gmsStr(gmsLon)}` },
+        { label: 'WGS84 GMS',     lines: [`Lat: ${gmsStr(gl)}`, `Lon: ${gmsStr(glo)}`],           copy: `${gmsStr(gl)}, ${gmsStr(glo)}` },
       ]
     };
   } else {
     const faja = detectFaja(lon);
     const def = `${getPrefix(destSys)}${faja}`;
     const pt = proj4('EPSG:4326', def, [lon, lat]);
-    const E = Math.round(pt[0] * 10) / 10;
-    const N = Math.round(pt[1] * 10) / 10;
+    const E = Math.round(pt[0]*10)/10, N = Math.round(pt[1]*10)/10;
     const sysLabel = SYSTEMS.find(s => s.value === destSys)?.label;
     return {
       lat, lon,
@@ -592,62 +467,83 @@ function convertCoords(originSys, destSys, input) {
   }
 }
 
-// ─── MAP COMPONENT ────────────────────────────────────────────────────
-const FAJA_MERIDIANS = [-72,-69,-66,-63,-60,-57];
+// ─── COPY BUTTON ─────────────────────────────────────────────────────
+function CopyBtn({ text }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button className={`copy-btn${copied?' copied':''}`} title="Copiar"
+      onClick={() => { navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(()=>setCopied(false),1800); }); }}>
+      {copied ? '✓' : '⎘'}
+    </button>
+  );
+}
 
+// ─── MAP ─────────────────────────────────────────────────────────────
 function MapView({ point }) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const instanceRef = useRef(null);
 
   useEffect(() => {
-    if (instanceRef.current) return;
-    const m = L.map(mapRef.current, { zoomControl: true, attributionControl: true });
-    m.setView([-38, -64], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap', maxZoom: 19
-    }).addTo(m);
-    FAJA_MERIDIANS.forEach((lon, i) => {
-      L.polyline([[-21.8, lon],[-55.5, lon]], {
-        color: '#2563eb', weight: 1, opacity: 0.35, dashArray: '4,6'
-      }).addTo(m).bindTooltip(`Faja ${i+1} — ${Math.abs(lon)}°O`);
-    });
-    instanceRef.current = m;
-
-    // Forzar recálculo cuando el contenedor cambia de tamaño (ej. en móvil)
-    const ro = new ResizeObserver(() => {
-      if (instanceRef.current) instanceRef.current.invalidateSize();
-    });
-    ro.observe(mapRef.current);
-    return () => ro.disconnect();
+    // pequeño delay para asegurar que el DOM está pintado
+    const timer = setTimeout(() => {
+      if (instanceRef.current || !mapRef.current) return;
+      const m = L.map(mapRef.current, { zoomControl: true });
+      m.setView([-38, -64], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap', maxZoom: 19
+      }).addTo(m);
+      FAJA_MERIDIANS.forEach((lon, i) => {
+        L.polyline([[-21.8,lon],[-55.5,lon]], {
+          color:'#2563eb', weight:1, opacity:0.35, dashArray:'4,6'
+        }).addTo(m).bindTooltip(`Faja ${i+1} — ${Math.abs(lon)}°O`);
+      });
+      instanceRef.current = m;
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (!instanceRef.current || !point) return;
     if (markerRef.current) instanceRef.current.removeLayer(markerRef.current);
     markerRef.current = L.circleMarker([point.lat, point.lon], {
-      radius: 9, fillColor: '#2563eb', color: '#1d4ed8', weight: 2,
-      opacity: 1, fillOpacity: 0.85
-    }).addTo(instanceRef.current).bindPopup(`${point.lat.toFixed(5)}, ${point.lon.toFixed(5)}`).openPopup();
-    instanceRef.current.setView([point.lat, point.lon], 8, { animate: true });
+      radius:9, fillColor:'#2563eb', color:'#1d4ed8',
+      weight:2, opacity:1, fillOpacity:0.85
+    }).addTo(instanceRef.current)
+      .bindPopup(`${point.lat.toFixed(5)}, ${point.lon.toFixed(5)}`).openPopup();
+    instanceRef.current.setView([point.lat, point.lon], 8, { animate:true });
   }, [point]);
 
   return <div ref={mapRef} id="map"></div>;
 }
 
-// ─── COPY BUTTON ─────────────────────────────────────────────────────
-function CopyBtn({ text }) {
-  const [copied, setCopied] = useState(false);
-  const handle = () => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    });
-  };
+// ─── TECH NOTE ────────────────────────────────────────────────────────
+function TechNote() {
+  const [expanded, setExpanded] = useState(false);
   return (
-    <button className={`copy-btn${copied ? ' copied' : ''}`} onClick={handle} title="Copiar">
-      {copied ? '✓' : '⎘'}
-    </button>
+    <div className="tech-note">
+      <div style={{display:'flex',alignItems:'center',marginBottom:'0.5rem'}}>
+        <span className="tech-badge">Nota técnica</span>
+        <span style={{fontSize:'12px',color:'#92400e',fontWeight:500}}>Precisión y diferencias entre herramientas</span>
+      </div>
+      <div className={`tech-note-body${expanded?'':' tech-note-collapsed'}`}>
+        <p>Esta herramienta utiliza la librería <strong>proj4js</strong> para realizar las transformaciones directamente en el navegador. Los resultados son matemáticamente correctos para los parámetros definidos, pero pueden diferir de los obtenidos con software GIS profesional (QGIS, ArcGIS, Global Mapper) por las razones que se detallan a continuación.</p>
+        {expanded && <>
+          <table className="tech-table">
+            <thead><tr><th>Componente</th><th>Diferencia típica</th><th>Causa</th></tr></thead>
+            <tbody>
+              <tr><td>Este (X)</td><td>~ 5–15 m</td><td>Diferencias en la precisión de la serie de Mercator Transversa entre implementaciones (proj4js vs. PROJ/GDAL)</td></tr>
+              <tr><td>Norte (Y)</td><td>~ 1.000–1.600 m</td><td>Convención del <em>falso norte</em>: esta app usa <code>lat₀=0° + y₀=10.000.000 m</code> (origen en el ecuador). Algunos software usan <code>lat₀=−90°</code> (polo sur), sumando el arco meridiano real del elipsoide (~10.001.966 m para WGS84).</td></tr>
+            </tbody>
+          </table>
+          <p><strong>Implicancia práctica:</strong> Al transformar el mismo punto en esta app y en QGIS es esperable obtener valores de Norte que difieren en ~1.500 m. Esto <em>no</em> significa que alguna herramienta esté equivocada: ambas aplican la proyección correctamente pero con parámetros de origen distintos. Para verificar qué parámetros usa QGIS, consultar las propiedades del SRC de la capa reproyectada.</p>
+          <p style={{marginTop:'0.5rem'}}><strong>Advertencia para uso profesional:</strong> En proyectos que requieren precisión geodésica (catastro, ingeniería, topografía), siempre verificar el código EPSG y los parámetros exactos. Una diferencia de ~1.500 m en Norte puede tener consecuencias graves si no se detecta. Sistema oficial IGN Argentina: <strong>POSGAR 2007 (EPSG:5343–5349)</strong>. Se recomienda software geodésico certificado para aplicaciones profesionales.</p>
+        </>}
+      </div>
+      <button className="tech-expand-btn" onClick={()=>setExpanded(e=>!e)}>
+        {expanded ? '▲ Cerrar' : '▼ Ver detalles y advertencias'}
+      </button>
+    </div>
   );
 }
 
@@ -656,12 +552,10 @@ function IndividualMode({ onResult }) {
   const [origin, setOrigin] = useState('WGS84');
   const [dest, setDest] = useState('POSGAR2007');
   const [format, setFormat] = useState('decimal');
-  const [lat, setLat] = useState('');
-  const [lon, setLon] = useState('');
+  const [lat, setLat] = useState(''); const [lon, setLon] = useState('');
   const [latG, setLatG] = useState(''); const [latM, setLatM] = useState(''); const [latS, setLatS] = useState('');
   const [lonG, setLonG] = useState(''); const [lonM, setLonM] = useState(''); const [lonS, setLonS] = useState('');
-  const [east, setEast] = useState('');
-  const [north, setNorth] = useState('');
+  const [east, setEast] = useState(''); const [north, setNorth] = useState('');
   const [faja, setFaja] = useState('4');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -671,9 +565,9 @@ function IndividualMode({ onResult }) {
   const swap = () => { setOrigin(dest); setDest(origin); setResult(null); setError(''); };
 
   const clear = () => {
-    setLat(''); setLon(''); setLatG(''); setLatM(''); setLatS('');
-    setLonG(''); setLonM(''); setLonS(''); setEast(''); setNorth('');
-    setResult(null); setError('');
+    setLat('');setLon('');setLatG('');setLatM('');setLatS('');
+    setLonG('');setLonM('');setLonS('');setEast('');setNorth('');
+    setResult(null);setError('');
   };
 
   const convert = () => {
@@ -682,46 +576,43 @@ function IndividualMode({ onResult }) {
       let input;
       if (!originPlanar) {
         if (format === 'decimal') {
-          const la = parseFloat(lat); const lo = parseFloat(lon);
-          if (isNaN(la) || isNaN(lo)) throw new Error('Ingresá latitud y longitud válidas.');
-          input = { lat: la, lon: lo };
+          const la = parseFloat(lat), lo = parseFloat(lon);
+          if (isNaN(la)||isNaN(lo)) throw new Error('Ingresá latitud y longitud válidas.');
+          input = { lat:la, lon:lo };
         } else {
           const lg = parseFloat(latG); if (isNaN(lg)) throw new Error('Ingresá grados de latitud.');
           const ll = parseFloat(lonG); if (isNaN(ll)) throw new Error('Ingresá grados de longitud.');
-          const signLat = lg < 0 ? -1 : 1;
-          const signLon = ll < 0 ? -1 : 1;
+          const sl = lg<0?-1:1, slo = ll<0?-1:1;
           input = {
-            lat: signLat * (Math.abs(lg) + (parseFloat(latM)||0)/60 + (parseFloat(latS)||0)/3600),
-            lon: signLon * (Math.abs(ll) + (parseFloat(lonM)||0)/60 + (parseFloat(lonS)||0)/3600),
+            lat: sl*(Math.abs(lg)+(parseFloat(latM)||0)/60+(parseFloat(latS)||0)/3600),
+            lon: slo*(Math.abs(ll)+(parseFloat(lonM)||0)/60+(parseFloat(lonS)||0)/3600),
           };
         }
       } else {
-        const e = parseFloat(east); const n = parseFloat(north);
-        if (isNaN(e) || isNaN(n)) throw new Error('Ingresá Este y Norte válidos.');
-        input = { east: e, north: n, faja };
+        const e = parseFloat(east), n = parseFloat(north);
+        if (isNaN(e)||isNaN(n)) throw new Error('Ingresá Este y Norte válidos.');
+        input = { east:e, north:n, faja };
       }
       const res = convertCoords(origin, dest, input);
       setResult(res);
-      onResult(res, origin, dest, input);
-    } catch (err) {
-      setError(err.message);
-    }
+      onResult(res, origin, dest);
+    } catch(err) { setError(err.message); }
   };
 
   return (
-    <div className="form-section">
-      {/* System selectors */}
-      <div>
-        <div className="section-label">Sistema de coordenadas</div>
+    <>
+      {/* Sistema */}
+      <div className="card">
+        <div className="card-title">Sistema de coordenadas</div>
         <div className="system-row">
           <div className="field-group">
             <label className="field-label">Origen</label>
-            <select value={origin} onChange={e => { setOrigin(e.target.value); setResult(null); setError(''); }}>
-              {SYSTEMS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            <select value={origin} onChange={e=>{setOrigin(e.target.value);setResult(null);setError('');}}>
+              {SYSTEMS.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
           </div>
-          <div style={{paddingBottom:'2px'}}>
-            <button className="swap-btn" onClick={swap} title="Intercambiar sistemas">
+          <div>
+            <button className="swap-btn" onClick={swap} title="Intercambiar">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
                 <path d="M3 5h10M10 2l3 3-3 3M13 11H3M6 8l-3 3 3 3" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -729,106 +620,86 @@ function IndividualMode({ onResult }) {
           </div>
           <div className="field-group">
             <label className="field-label">Destino</label>
-            <select value={dest} onChange={e => { setDest(e.target.value); setResult(null); setError(''); }}>
-              {SYSTEMS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            <select value={dest} onChange={e=>{setDest(e.target.value);setResult(null);setError('');}}>
+              {SYSTEMS.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
           </div>
         </div>
-      </div>
 
-      {/* Input */}
-      <div>
-        <div className="section-label">
-          {originPlanar ? 'Coordenadas planas' : 'Coordenadas geográficas'}
-        </div>
+        {/* Input */}
+        <div className="card-title">{originPlanar ? 'Coordenadas planas' : 'Coordenadas geográficas'}</div>
 
         {!originPlanar && (
-          <div className="format-toggle" style={{marginBottom:'1rem'}}>
-            <button className={`format-btn${format==='decimal'?' active':''}`} onClick={() => setFormat('decimal')}>Decimal</button>
-            <button className={`format-btn${format==='gms'?' active':''}`} onClick={() => setFormat('gms')}>GMS</button>
+          <div className="format-toggle">
+            <button className={`format-btn${format==='decimal'?' active':''}`} onClick={()=>setFormat('decimal')}>Decimal</button>
+            <button className={`format-btn${format==='gms'?' active':''}`} onClick={()=>setFormat('gms')}>G° M\' S"</button>
           </div>
         )}
 
-        {!originPlanar && format === 'decimal' && (
+        {!originPlanar && format==='decimal' && (
           <div className="input-grid-2 input-mono">
-            <div className="field-group">
-              <label className="field-label">Latitud</label>
-              <input type="number" step="0.0001" placeholder="-34.6037" value={lat} onChange={e=>setLat(e.target.value)} />
-            </div>
-            <div className="field-group">
-              <label className="field-label">Longitud</label>
-              <input type="number" step="0.0001" placeholder="-58.3816" value={lon} onChange={e=>setLon(e.target.value)} />
-            </div>
+            <div className="field-group"><label className="field-label">Latitud</label><input type="number" step="0.0001" placeholder="-34.6037" value={lat} onChange={e=>setLat(e.target.value)}/></div>
+            <div className="field-group"><label className="field-label">Longitud</label><input type="number" step="0.0001" placeholder="-58.3816" value={lon} onChange={e=>setLon(e.target.value)}/></div>
           </div>
         )}
 
-        {!originPlanar && format === 'gms' && (
-          <>
-            <div className="field-group" style={{marginBottom:'0.75rem'}}>
-              <label className="field-label">Latitud (G° M' S")</label>
+        {!originPlanar && format==='gms' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'0.75rem'}}>
+            <div className="field-group"><label className="field-label">Latitud — G° M' S"</label>
               <div className="input-grid-3 input-mono">
-                <input type="number" placeholder="Grados" value={latG} onChange={e=>setLatG(e.target.value)} />
-                <input type="number" placeholder="Minutos" min="0" max="59" value={latM} onChange={e=>setLatM(e.target.value)} />
-                <input type="number" placeholder="Segundos" min="0" step="0.01" value={latS} onChange={e=>setLatS(e.target.value)} />
+                <input type="number" placeholder="Grados" value={latG} onChange={e=>setLatG(e.target.value)}/>
+                <input type="number" placeholder="Minutos" value={latM} onChange={e=>setLatM(e.target.value)}/>
+                <input type="number" placeholder="Segundos" step="0.01" value={latS} onChange={e=>setLatS(e.target.value)}/>
               </div>
             </div>
-            <div className="field-group">
-              <label className="field-label">Longitud (G° M' S")</label>
+            <div className="field-group"><label className="field-label">Longitud — G° M' S"</label>
               <div className="input-grid-3 input-mono">
-                <input type="number" placeholder="Grados" value={lonG} onChange={e=>setLonG(e.target.value)} />
-                <input type="number" placeholder="Minutos" min="0" max="59" value={lonM} onChange={e=>setLonM(e.target.value)} />
-                <input type="number" placeholder="Segundos" min="0" step="0.01" value={lonS} onChange={e=>setLonS(e.target.value)} />
+                <input type="number" placeholder="Grados" value={lonG} onChange={e=>setLonG(e.target.value)}/>
+                <input type="number" placeholder="Minutos" value={lonM} onChange={e=>setLonM(e.target.value)}/>
+                <input type="number" placeholder="Segundos" step="0.01" value={lonS} onChange={e=>setLonS(e.target.value)}/>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {originPlanar && (
-          <>
-            <div className="input-grid-2 input-mono" style={{marginBottom:'0.75rem'}}>
-              <div className="field-group">
-                <label className="field-label">Este (m)</label>
-                <input type="number" step="1" placeholder="4500000" value={east} onChange={e=>setEast(e.target.value)} />
-              </div>
-              <div className="field-group">
-                <label className="field-label">Norte (m)</label>
-                <input type="number" step="1" placeholder="6172000" value={north} onChange={e=>setNorth(e.target.value)} />
-              </div>
+          <div style={{display:'flex',flexDirection:'column',gap:'0.75rem'}}>
+            <div className="input-grid-2 input-mono">
+              <div className="field-group"><label className="field-label">Este (m)</label><input type="number" step="1" placeholder="4500000" value={east} onChange={e=>setEast(e.target.value)}/></div>
+              <div className="field-group"><label className="field-label">Norte (m)</label><input type="number" step="1" placeholder="6172000" value={north} onChange={e=>setNorth(e.target.value)}/></div>
             </div>
-            <div className="field-group">
-              <label className="field-label">Faja</label>
+            <div className="field-group"><label className="field-label">Faja</label>
               <select value={faja} onChange={e=>setFaja(e.target.value)}>
-                {FAJAS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                {FAJAS.map(f=><option key={f.value} value={f.value}>{f.label}</option>)}
               </select>
             </div>
-          </>
+          </div>
         )}
+
+        {error && <div className="error-msg" style={{marginTop:'1rem'}}>⚠ {error}</div>}
+
+        <div style={{display:'flex',gap:'0.5rem',marginTop:'1.25rem'}}>
+          <button className="convert-btn" onClick={convert}>Convertir</button>
+          <button className="btn-ghost" onClick={clear}>Limpiar</button>
+        </div>
       </div>
 
-      {error && <div className="error-msg">⚠ {error}</div>}
-
-      <div style={{display:'flex',gap:'0.5rem'}}>
-        <button className="convert-btn" onClick={convert}>Convertir</button>
-        <button className="btn-ghost" onClick={clear} style={{flexShrink:0}}>Limpiar</button>
-      </div>
-
+      {/* Results */}
       {result && (
         <div className="results-panel">
-          <div className="results-header">
-            <span className="results-title">Resultado</span>
-          </div>
+          <div className="results-label">Resultado</div>
           <div className="result-cards">
-            {result.cards.map((card, i) => (
+            {result.cards.map((card,i)=>(
               <div className="result-card" key={i}>
                 <div className="result-card-label">{card.label}</div>
-                {card.lines.map((l, j) => <div className="result-value" key={j}>{l}</div>)}
-                <CopyBtn text={card.copy} />
+                {card.lines.map((l,j)=><div className="result-value" key={j}>{l}</div>)}
+                <CopyBtn text={card.copy}/>
               </div>
             ))}
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -841,97 +712,79 @@ function BatchMode() {
   const [rows, setRows] = useState(null);
 
   const process = () => {
-    const lines = text.trim().split('\n').filter(l => l.trim());
-    const results = lines.map(line => {
-      const parts = line.trim().split(/[\s,;]+/);
+    const lines = text.trim().split('\n').filter(l=>l.trim());
+    setRows(lines.map(line => {
+      const pts = line.trim().split(/[\s,;]+/);
       try {
         let input;
         if (!isPlanar(origin)) {
-          const la = parseFloat(parts[0]); const lo = parseFloat(parts[1]);
-          if (isNaN(la) || isNaN(lo)) throw new Error('inválido');
-          input = { lat: la, lon: lo };
+          const la=parseFloat(pts[0]),lo=parseFloat(pts[1]);
+          if(isNaN(la)||isNaN(lo)) throw new Error('inválido');
+          input={lat:la,lon:lo};
         } else {
-          const e = parseFloat(parts[0]); const n = parseFloat(parts[1]);
-          if (isNaN(e) || isNaN(n)) throw new Error('inválido');
-          const f = parts[2] || faja;
-          input = { east: e, north: n, faja: f };
+          const e=parseFloat(pts[0]),n=parseFloat(pts[1]);
+          if(isNaN(e)||isNaN(n)) throw new Error('inválido');
+          input={east:e,north:n,faja:pts[2]||faja};
         }
-        const res = convertCoords(origin, dest, input);
-        return { ok: true, input: line.trim(), output: res.cards[0].copy };
-      } catch(e) {
-        return { ok: false, input: line.trim(), output: e.message };
-      }
-    });
-    setRows(results);
+        const res=convertCoords(origin,dest,input);
+        return {ok:true,input:line.trim(),output:res.cards[0].copy};
+      } catch(e) { return {ok:false,input:line.trim(),output:e.message}; }
+    }));
   };
 
   const downloadCSV = () => {
-    if (!rows) return;
-    let csv = 'Entrada,Resultado,Estado\n';
-    rows.forEach(r => { csv += `"${r.input}","${r.output}","${r.ok?'OK':'Error'}"\n`; });
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'coordenadas_batch.csv'; a.click();
+    if(!rows) return;
+    let csv='Entrada,Resultado,Estado\n';
+    rows.forEach(r=>{csv+=`"${r.input}","${r.output}","${r.ok?'OK':'Error'}"\n`;});
+    const blob=new Blob([csv],{type:'text/csv'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='coordenadas_batch.csv';a.click();
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="batch-section">
-      <div className="batch-desc">
-        Pegá una lista de coordenadas, una por línea. Para WGS84 usá <code>lat, lon</code>. Para sistemas planos: <code>Este, Norte</code> (y opcionalmente la faja como tercer valor).
-      </div>
-
+    <div className="card" style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+      <div className="card-title">Conversión en lote (batch)</div>
+      <p style={{fontSize:'13px',color:'var(--text-2)',lineHeight:'1.6'}}>
+        Pegá una lista de coordenadas, una por línea. Para WGS84: <code>lat, lon</code>. Para sistemas planos: <code>Este, Norte</code> (faja opcional como tercer valor).
+      </p>
       <div className="system-row">
-        <div className="field-group">
-          <label className="field-label">Origen</label>
+        <div className="field-group"><label className="field-label">Origen</label>
           <select value={origin} onChange={e=>setOrigin(e.target.value)}>
             {SYSTEMS.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
-        <div style={{paddingBottom:'2px'}}>
-          <button className="swap-btn" onClick={()=>{setOrigin(dest);setDest(origin);setRows(null);}} title="Intercambiar">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
-              <path d="M3 5h10M10 2l3 3-3 3M13 11H3M6 8l-3 3 3 3" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div className="field-group">
-          <label className="field-label">Destino</label>
+        <button className="swap-btn" onClick={()=>{setOrigin(dest);setDest(origin);setRows(null);}}>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+            <path d="M3 5h10M10 2l3 3-3 3M13 11H3M6 8l-3 3 3 3" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <div className="field-group"><label className="field-label">Destino</label>
           <select value={dest} onChange={e=>setDest(e.target.value)}>
             {SYSTEMS.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
       </div>
-
       {isPlanar(origin) && (
-        <div className="field-group">
-          <label className="field-label">Faja por defecto</label>
+        <div className="field-group"><label className="field-label">Faja por defecto</label>
           <select value={faja} onChange={e=>setFaja(e.target.value)}>
             {FAJAS.map(f=><option key={f.value} value={f.value}>{f.label}</option>)}
           </select>
         </div>
       )}
-
-      <div className="field-group">
-        <label className="field-label">Coordenadas (una por línea)</label>
+      <div className="field-group"><label className="field-label">Coordenadas</label>
         <textarea
-          placeholder={isPlanar(origin) ? "4500234.5, 6172000.3\n3800100.0, 5900000.0" : "-34.6037, -58.3816\n-31.4201, -64.1888\n-38.9516, -68.0591"}
-          value={text}
-          onChange={e=>setText(e.target.value)}
-        />
+          placeholder={isPlanar(origin)?"4500234.5, 6172000.3\n3800100.0, 5900000.0":"-34.6037, -58.3816\n-31.4201, -64.1888\n-38.9516, -68.0591"}
+          value={text} onChange={e=>setText(e.target.value)}/>
       </div>
-
       <div style={{display:'flex',gap:'0.5rem'}}>
         <button className="convert-btn" onClick={process}>Procesar lote</button>
-        {rows && <button className="btn-ghost" onClick={downloadCSV} style={{flexShrink:0}}>↓ CSV</button>}
+        {rows && <button className="btn-ghost" onClick={downloadCSV}>↓ CSV</button>}
       </div>
-
       {rows && (
         <div className="batch-results">
-          <div className="batch-row header">
-            <span>Entrada</span><span>Resultado</span><span>Estado</span>
-          </div>
-          {rows.map((r, i) => (
+          <div className="batch-row header"><span>Entrada</span><span>Resultado</span><span>OK</span></div>
+          {rows.map((r,i)=>(
             <div className="batch-row" key={i}>
               <span style={{fontFamily:'var(--mono)',fontSize:'11px',color:'var(--text-2)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.input}</span>
               <span style={{fontFamily:'var(--mono)',fontSize:'11px'}}>{r.output}</span>
@@ -944,105 +797,32 @@ function BatchMode() {
   );
 }
 
-// ─── HISTORY ──────────────────────────────────────────────────────────
-function HistoryPanel({ history, onClear, onDownload }) {
-  if (history.length === 0) return null;
-  return (
-    <div className="history-section">
-      <div className="divider" style={{margin:'0 0 1.25rem'}}></div>
-      <div className="history-header">
-        <span className="section-label" style={{marginBottom:0}}>Historial ({history.length})</span>
-        <div style={{display:'flex',gap:'0.5rem'}}>
-          <button className="btn-ghost" onClick={onDownload}>↓ CSV</button>
-          <button className="btn-ghost" onClick={onClear}>Limpiar</button>
-        </div>
-      </div>
-      <div className="history-list">
-        {[...history].reverse().map((item, i) => (
-          <div className="history-item" key={i}>
-            <span style={{color:'var(--text)',fontWeight:500}}>{item.label}</span>
-            <span className="history-tag">{item.from} → {item.to}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── TECH NOTE ────────────────────────────────────────────────────────
-function TechNote() {
-  const [expanded, setExpanded] = React.useState(false);
-  return (
-    <div className="tech-note">
-      <div className="tech-note-header">
-        <span className="tech-badge">Nota técnica</span>
-        <span style={{fontSize:'12px',color:'var(--text-2)',fontWeight:500}}>Precisión y diferencias entre herramientas de conversión</span>
-      </div>
-      <div className={`tech-note-body${expanded ? '' : ' tech-note-collapsed'}`}>
-        <p>Esta herramienta utiliza la librería <strong>proj4js</strong> para realizar las transformaciones directamente en el navegador. Los resultados son matemáticamente correctos para los parámetros definidos, pero pueden diferir de los obtenidos con software GIS profesional (QGIS, ArcGIS, Global Mapper) por las razones que se detallan a continuación.</p>
-        {expanded && <>
-          <table className="tech-table">
-            <thead>
-              <tr><th>Componente</th><th>Diferencia típica</th><th>Causa</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Este (X)</td>
-                <td>~ 5–15 m</td>
-                <td>Diferencias en la precisión de la serie de Mercator Transversa entre implementaciones (proj4js vs. PROJ/GDAL)</td>
-              </tr>
-              <tr>
-                <td>Norte (Y)</td>
-                <td>~ 1.000–1.600 m</td>
-                <td>Convención del <em>falso norte</em>: esta app usa <code>lat₀=0° + y₀=10.000.000 m</code> (origen en el ecuador). Algunos software usan <code>lat₀=−90° + y₀=0</code> (origen en el polo sur), equivalente a sumar el arco meridiano real del elipsoide (~10.001.966 m para WGS84).</td>
-              </tr>
-            </tbody>
-          </table>
-          <p><strong>Implicancia práctica:</strong> Al transformar el mismo punto en esta app y en QGIS es esperable obtener valores de Norte que difieren en ~1.500 m. Esto <em>no</em> significa que alguna herramienta esté equivocada: ambas aplican la proyección correctamente pero con parámetros de origen distintos.</p>
-          <p style={{marginTop:'0.5rem'}}><strong>Advertencia para uso profesional:</strong> En proyectos que requieren precisión geodésica (catastro, ingeniería, topografía), siempre verificar el código EPSG y los parámetros exactos. Una diferencia de ~1.500 m en Norte puede tener consecuencias graves. Se recomienda el sistema oficial del IGN Argentina: <strong>POSGAR 2007 (EPSG:5343–5349)</strong> y software certificado.</p>
-        </>}
-      </div>
-      <button className="tech-expand-btn" onClick={() => setExpanded(e => !e)}>
-        {expanded
-          ? <><span>▲</span> Cerrar</>
-          : <><span>▼</span> Ver detalles y advertencias</>}
-      </button>
-    </div>
-  );
-}
-
 // ─── APP ──────────────────────────────────────────────────────────────
 function App() {
   const [tab, setTab] = useState('individual');
   const [mapPoint, setMapPoint] = useState(null);
   const [history, setHistory] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('coord_history') || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem('coord_history')||'[]'); } catch { return []; }
   });
 
-  const handleResult = useCallback((res, from, to, input) => {
+  const handleResult = useCallback((res, from, to) => {
     setMapPoint({ lat: res.lat, lon: res.lon });
     const label = res.cards[0].lines.join(' | ');
-    const newItem = { label, from, to, ts: Date.now() };
     setHistory(prev => {
-      const next = [...prev, newItem].slice(-50);
+      const next = [...prev, { label, from, to, ts: Date.now() }].slice(-50);
       localStorage.setItem('coord_history', JSON.stringify(next));
       return next;
     });
   }, []);
 
-  const clearHistory = () => {
-    setHistory([]);
-    localStorage.removeItem('coord_history');
-  };
+  const clearHistory = () => { setHistory([]); localStorage.removeItem('coord_history'); };
 
   const downloadHistory = () => {
-    let csv = 'Origen,Destino,Resultado,Fecha\n';
-    history.forEach(h => {
-      csv += `"${h.from}","${h.to}","${h.label}","${new Date(h.ts).toLocaleString('es-AR')}"\n`;
-    });
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'historial_coordenadas.csv'; a.click();
+    let csv='Origen,Destino,Resultado,Fecha\n';
+    history.forEach(h=>{csv+=`"${h.from}","${h.to}","${h.label}","${new Date(h.ts).toLocaleString('es-AR')}"\n`;});
+    const blob=new Blob([csv],{type:'text/csv'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='historial_coordenadas.csv';a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -1050,55 +830,75 @@ function App() {
     <>
       <header className="header">
         <div className="header-logo">
-          <svg viewBox="0 0 18 18" fill="none">
+          <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
             <circle cx="9" cy="9" r="7" stroke="white" strokeWidth="1.5"/>
             <path d="M9 2v14M2 9h14" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
             <path d="M4.2 5a9 9 0 0 1 9.6 0M4.2 13a9 9 0 0 0 9.6 0" stroke="white" strokeWidth="1" strokeLinecap="round"/>
           </svg>
         </div>
         <div>
-          <div className="header-title">Coordenada</div>
-          <div className="header-subtitle">Convertidor Geodésico Argentina</div>
+          <div className="header-name">Coordenada</div>
+          <div className="header-sub">Convertidor Geodésico Argentina</div>
         </div>
-        <div className="header-author">© {new Date().getFullYear()} Dr. Fabio A. Montealegre M. — uso académico y didáctico</div>
+        <div className="header-copy">© {new Date().getFullYear()} Dr. Fabio A. Montealegre M.<br/>Herramienta de uso académico y didáctico</div>
       </header>
 
-      <div className="mobile-author">© {new Date().getFullYear()} Dr. Fabio A. Montealegre M. — Herramienta de uso académico</div>
-      <div className="app-body">
-        {/* LEFT */}
-        <div className="left-col">
-          <div className="tabs">
-            <button className={`tab-btn${tab==='individual'?' active':''}`} onClick={()=>setTab('individual')}>Conversión individual</button>
-            <button className={`tab-btn${tab==='batch'?' active':''}`} onClick={()=>setTab('batch')}>Lote (batch)</button>
-          </div>
-
-          {tab === 'individual' && (
-            <>
-              <IndividualMode onResult={handleResult} />
-              <HistoryPanel history={history} onClear={clearHistory} onDownload={downloadHistory} />
-              <div style={{height:'1.5rem'}}></div>
-            </>
-          )}
-
-          {tab === 'batch' && <BatchMode />}
+      <div className="main">
+        {/* Tabs */}
+        <div className="tabs">
+          <button className={`tab-btn${tab==='individual'?' active':''}`} onClick={()=>setTab('individual')}>Conversión individual</button>
+          <button className={`tab-btn${tab==='batch'?' active':''}`} onClick={()=>setTab('batch')}>Lote (batch)</button>
         </div>
 
-        {/* RIGHT */}
-        <div className="right-col">
-          <div className="map-wrapper">
-            <MapView point={mapPoint} />
+        {/* Form */}
+        {tab==='individual' && <IndividualMode onResult={handleResult}/>}
+        {tab==='batch' && <BatchMode/>}
+
+        {/* MAP — always in document flow */}
+        <div className="card" style={{padding:'1rem'}}>
+          <div className="card-title" style={{marginBottom:'0.75rem'}}>Mapa de ubicación</div>
+          <MapView point={mapPoint}/>
+          <div className="map-legend">
+            <div className="legend-item"><div className="legend-dot" style={{background:'#2563eb'}}></div><span>Punto convertido</span></div>
+            <div className="legend-item"><div className="legend-dot" style={{background:'rgba(37,99,235,0.25)',border:'1px dashed #2563eb'}}></div><span>Meridianos de fajas</span></div>
           </div>
-          <TechNote />
-          <div className="footer-copyright">
-            © {new Date().getFullYear()} Dr. Fabio A. Montealegre M. — Desarrollado con fines académicos y didácticos. Los resultados no reemplazan el uso de software geodésico certificado para aplicaciones profesionales.
+        </div>
+
+        {/* History */}
+        {history.length > 0 && (
+          <div className="card">
+            <div className="history-header">
+              <div className="card-title" style={{marginBottom:0}}>Historial ({history.length})</div>
+              <div style={{display:'flex',gap:'0.5rem'}}>
+                <button className="btn-ghost" onClick={downloadHistory}>↓ CSV</button>
+                <button className="btn-ghost" onClick={clearHistory}>Limpiar</button>
+              </div>
+            </div>
+            <div className="history-list">
+              {[...history].reverse().map((item,i)=>(
+                <div className="history-item" key={i}>
+                  <span style={{fontWeight:500,color:'var(--text)'}}>{item.label}</span>
+                  <span className="history-tag">{item.from} → {item.to}</span>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Tech Note */}
+        <TechNote/>
+
+        {/* Footer */}
+        <div className="footer">
+          © {new Date().getFullYear()} <strong>Dr. Fabio A. Montealegre M.</strong><br/>
+          Desarrollado con fines académicos y didácticos. Los resultados no reemplazan el uso de software geodésico certificado para aplicaciones profesionales.
         </div>
       </div>
     </>
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
