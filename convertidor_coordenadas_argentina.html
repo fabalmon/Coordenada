@@ -442,13 +442,12 @@ button.primary:hover {
       <div class="input-group" id="fajaSelector" style="display:none;">
         <label>Faja</label>
         <select id="faja">
-          <option value="1">Faja 1 (66°O)</option>
-          <option value="2">Faja 2 (69°O)</option>
-          <option value="3">Faja 3 (72°O)</option>
-          <option value="4">Faja 4 (75°O)</option>
-          <option value="5">Faja 5 (60°O)</option>
-          <option value="6">Faja 6 (63°O)</option>
-          <option value="7">Faja 7 (57°O)</option>
+          <option value="1">Faja 1 (72°O) — Cuyo / Patagonia oeste</option>
+          <option value="2">Faja 2 (69°O) — Neuquén / San Juan</option>
+          <option value="3">Faja 3 (66°O) — La Rioja / Córdoba oeste</option>
+          <option value="4">Faja 4 (63°O) — Córdoba / Santa Fe</option>
+          <option value="5">Faja 5 (60°O) — Entre Ríos / Chaco</option>
+          <option value="6">Faja 6 (57°O) — Buenos Aires / Misiones</option>
         </select>
       </div>
     </div>
@@ -504,29 +503,32 @@ let conversionHistory = [];
 // Registrar proyecciones
 proj4.defs('EPSG:4326', '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs');
 
-// Gauss-Krüger Argentina se basa en el datum Campo Inchauspe (+towgs84 requerido para conversión correcta a WGS84)
+// Numeración de fajas: convención argentina tradicional oeste→este
+// Faja 1: CM=72°O ... Faja 6: CM=57°O (Buenos Aires)
+// y_0=10000000 para obtener Norte positivo en hemisferio sur (práctica argentina habitual)
+
+// Gauss-Krüger (datum Campo Inchauspe): FE = faja × 1.000.000
 const gaussKrugerDefs = {
-  1: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=1500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
-  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
-  3: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=3500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
-  4: '+proj=tmerc +lon_0=-75 +k=0.9999 +x_0=4500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
-  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
-  6: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=6500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
-  7: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=7500000 +y_0=0 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs'
+  1: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=1000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  3: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=3000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  4: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=4000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs',
+  6: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=6000000 +y_0=10000000 +ellps=intl +towgs84=-148,136,90 +units=m +no_defs'
 };
 
 Object.keys(gaussKrugerDefs).forEach(faja => {
   proj4.defs(`GaussKruger${faja}`, gaussKrugerDefs[faja]);
 });
 
+// POSGAR 2007/1998/1994 (datum WGS84): FE = faja × 1.000.000 + 500.000
 const posgar2007Defs = {
-  1: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=1500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
-  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
-  3: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=3500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
-  4: '+proj=tmerc +lon_0=-75 +k=0.9999 +x_0=4500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
-  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
-  6: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=6500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
-  7: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=7500000 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+  1: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=1500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  3: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=3500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  4: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=4500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+  6: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=6500000 +y_0=10000000 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
 };
 
 Object.keys(posgar2007Defs).forEach(faja => {
@@ -543,28 +545,19 @@ Object.keys(posgar1994Defs).forEach(faja => {
   proj4.defs(`POSGAR1994${faja}`, posgar1994Defs[faja]);
 });
 
-const camposHinchaupseDefs = {
-  1: '+proj=tmerc +lon_0=-66 +k=0.9999 +x_0=1500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
-  2: '+proj=tmerc +lon_0=-69 +k=0.9999 +x_0=2500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
-  3: '+proj=tmerc +lon_0=-72 +k=0.9999 +x_0=3500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
-  4: '+proj=tmerc +lon_0=-75 +k=0.9999 +x_0=4500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
-  5: '+proj=tmerc +lon_0=-60 +k=0.9999 +x_0=5500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
-  6: '+proj=tmerc +lon_0=-63 +k=0.9999 +x_0=6500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs',
-  7: '+proj=tmerc +lon_0=-57 +k=0.9999 +x_0=7500000 +y_0=0 +ellps=intl +towgs84=-139.752,-88.278,-17.564 +units=m +no_defs'
-};
-
+// Campos Hinchauspe = mismo datum que Gauss-Krüger (Campo Inchauspe)
+const camposHinchaupseDefs = { ...gaussKrugerDefs };
 Object.keys(camposHinchaupseDefs).forEach(faja => {
   proj4.defs(`CamposHinchauspe${faja}`, camposHinchaupseDefs[faja]);
 });
 
 const fajaData = [
-  { faja: 1, lon: -66 },
+  { faja: 1, lon: -72 },
   { faja: 2, lon: -69 },
-  { faja: 3, lon: -72 },
-  { faja: 4, lon: -75 },
+  { faja: 3, lon: -66 },
+  { faja: 4, lon: -63 },
   { faja: 5, lon: -60 },
-  { faja: 6, lon: -63 },
-  { faja: 7, lon: -57 }
+  { faja: 6, lon: -57 }
 ];
 
 function updateFormatOptions() {
@@ -653,13 +646,12 @@ function getPlanarInput() {
 }
 
 function detectFaja(lon) {
-  if (lon >= -58.5) return 7;  // CM 57°O
+  if (lon >= -58.5) return 6;  // CM 57°O
   if (lon >= -61.5) return 5;  // CM 60°O
-  if (lon >= -64.5) return 6;  // CM 63°O
-  if (lon >= -67.5) return 1;  // CM 66°O
+  if (lon >= -64.5) return 4;  // CM 63°O
+  if (lon >= -67.5) return 3;  // CM 66°O
   if (lon >= -70.5) return 2;  // CM 69°O
-  if (lon >= -73.5) return 3;  // CM 72°O
-  return 4;                    // CM 75°O
+  return 1;                    // CM 72°O
 }
 
 function convertCoords(coords, originSystem, destinySystem) {
